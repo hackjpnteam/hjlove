@@ -312,6 +312,35 @@
             text-align: center;
         }
 
+        .invitation-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .invitation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .invitation-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+            text-align: center;
+        }
+
         .back-link {
             position: fixed;
             top: 20px;
@@ -403,7 +432,10 @@
                     occupation: "早稲田大学大学院M2",
                     location: "群馬県",
                     bio: "スキー同好会所属。母の乳がん体験をきっかけに、患者様とその家族を支える医療の重要性を実感。未来のMRを目指して日々学習中。",
-                    skills: ["スキー（特にコブ）", "パン・お菓子作り", "ボランティア活動", "教育支援", "医療知識"]
+                    skills: ["スキー（特にコブ）", "パン・お菓子作り", "ボランティア活動", "教育支援", "医療知識"],
+                    createdBy: "tomura@hackjpn.com",
+                    createdByName: "戸村光",
+                    createdAt: "2024-01-15T10:00:00.000Z"
                 },
                 {
                     id: "chika",
@@ -412,7 +444,10 @@
                     occupation: "プルデンシャル生命 ライフプランナー",
                     location: "東京",
                     bio: "お客様一人ひとりに最適な保障設計をご提案。JC活動にも積極的に参加し、地元への貢献と人間的成長を目指しています。",
-                    skills: ["ライフプランニング", "保険設計", "問題解決", "JC活動", "顧客対応", "リスク分析"]
+                    skills: ["ライフプランニング", "保険設計", "問題解決", "JC活動", "顧客対応", "リスク分析"],
+                    createdBy: "tomura@hackjpn.com",
+                    createdByName: "戸村光",
+                    createdAt: "2024-01-20T14:30:00.000Z"
                 },
                 {
                     id: "hikaru",
@@ -422,7 +457,10 @@
                     occupation: "連続起業家・Forbes公式コラムニスト",
                     location: "シリコンバレー/東京",
                     bio: "20歳でシリコンバレーにてHACKJPNを創業。スタートアップと投資家のための革新的なデータソリューションを提供。Forbes公式コラムニストとして活動。",
-                    skills: ["起業", "投資", "AI/機械学習", "メディア執筆", "データ分析", "ビジネス戦略"]
+                    skills: ["起業", "投資", "AI/機械学習", "メディア執筆", "データ分析", "ビジネス戦略"],
+                    createdBy: "system@hackjpn.com",
+                    createdByName: "HACKJPN",
+                    createdAt: "2024-01-10T09:15:00.000Z"
                 }
             ];
 
@@ -441,7 +479,7 @@
         }
 
         function displayProfile(profile) {
-            const { name, englishName, age, location, occupation, bio, skills, image } = profile;
+            const { name, englishName, age, location, occupation, bio, skills, image, createdBy, createdByName, createdAt } = profile;
             
             const englishNameDisplay = englishName ? `<span class="hero-subtitle">${englishName}</span>` : '';
             const ageDisplay = age ? `${age}歳` : '';
@@ -473,10 +511,36 @@
             const bioSentences = bio.split(/[。．！？\n]/).filter(s => s.trim().length > 0);
             const bioParagraphs = bioSentences.map(sentence => `<p class="bio-text">${sentence.trim()}。</p>`).join('');
 
+            // 招待者情報を生成（新規登録されたプロフィールの場合のみ）
+            let invitationInfoHTML = '';
+            if (createdBy && createdByName) {
+                const createdDate = createdAt ? new Date(createdAt) : new Date();
+                const formattedDate = createdDate.toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                invitationInfoHTML = `
+                    <div class="invitation-info">
+                        <div style="text-align: center;">
+                            <div class="invitation-badge">
+                                <span>🎉</span>
+                                ${createdByName}からの招待
+                            </div>
+                            <div class="invitation-text">
+                                ${formattedDate}に${createdByName}さんによって招待されました
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
             const profileHTML = `
                 <section class="hero">
                     <div class="hero-content">
                         ${profileImageHTML}
+                        ${invitationInfoHTML}
                         <div class="hero-badge">${occupation.split(' ')[0]}</div>
                         <h1 class="hero-title">${name}${englishNameDisplay}</h1>
                         <p class="hero-description">${occupationFull}</p>

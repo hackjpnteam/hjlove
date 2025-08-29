@@ -454,6 +454,8 @@
         });
 
         async function generateProfile(data) {
+            let createdProfile = null;
+            
             try {
                 const aiEnhancement = document.getElementById('aiEnhancement').checked;
                 
@@ -465,14 +467,14 @@
                     const enhancedData = await enhanceProfileWithAI(data);
                     
                     // 拡張されたデータでプロフィール生成
-                    const profile = window.profileGenerator.createProfilePage(enhancedData);
+                    createdProfile = window.profileGenerator.createProfilePage(enhancedData);
                     
                     // 成功メッセージを表示
-                    showSuccessMessage(profile, true);
+                    showSuccessMessage(createdProfile, true);
                 } else {
                     // 通常のプロフィール生成
-                    const profile = window.profileGenerator.createProfilePage(data);
-                    showSuccessMessage(profile, false);
+                    createdProfile = window.profileGenerator.createProfilePage(data);
+                    showSuccessMessage(createdProfile, false);
                 }
                 
                 // フォームをリセット
@@ -480,9 +482,19 @@
                 
                 // 新しいプロフィールページに移動
                 setTimeout(() => {
-                    const profiles = window.profileGenerator.getAllProfiles();
-                    const latestProfile = profiles[profiles.length - 1];
-                    window.location.href = `profile-view.html?id=${latestProfile.id}`;
+                    if (createdProfile && createdProfile.id) {
+                        window.location.href = `profile-view.html?id=${createdProfile.id}`;
+                    } else {
+                        // Fallback: 最新のプロフィールを取得
+                        const profiles = window.profileGenerator.getAllProfiles();
+                        const latestProfile = profiles[profiles.length - 1];
+                        if (latestProfile && latestProfile.id) {
+                            window.location.href = `profile-view.html?id=${latestProfile.id}`;
+                        } else {
+                            console.error('プロフィールIDが見つかりません');
+                            alert('プロフィールの作成に成功しましたが、ページの移動でエラーが発生しました。');
+                        }
+                    }
                 }, 2000);
                 
             } catch (error) {

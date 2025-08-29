@@ -242,6 +242,27 @@
                     <input type="text" class="form-input" id="name" required>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label">プロフィール画像</label>
+                    <input type="file" class="form-input" id="profileImage" accept="image/*" onchange="handleImageUpload(event)">
+                    <div id="imagePreview" style="margin-top: 15px; text-align: center; display: none;">
+                        <img id="previewImg" style="max-width: 200px; max-height: 200px; border-radius: 50%; border: 3px solid #667eea; object-fit: cover;">
+                        <div style="margin-top: 10px;">
+                            <button type="button" onclick="removeImage()" style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">画像を削除</button>
+                        </div>
+                    </div>
+                    <div id="currentImagePreview" style="margin-top: 15px; text-align: center; display: none;">
+                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">現在の画像:</div>
+                        <img id="currentImg" style="max-width: 200px; max-height: 200px; border-radius: 50%; border: 3px solid #667eea; object-fit: cover;">
+                        <div style="margin-top: 10px;">
+                            <button type="button" onclick="removeCurrentImage()" style="background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;">現在の画像を削除</button>
+                        </div>
+                    </div>
+                    <small style="display: block; color: #666; margin-top: 5px; font-size: 0.85rem;">
+                        📷 JPEG、PNG形式の画像をアップロードできます（最大5MB）
+                    </small>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">年齢</label>
@@ -294,6 +315,8 @@
         let profileId = '';
         let currentProfile = null;
         const skills = [];
+        let uploadedImage = null;
+        let imageRemoved = false;
 
         // URLからプロフィールIDを取得
         function getProfileIdFromURL() {
@@ -333,12 +356,64 @@
             document.getElementById('occupation').value = profile.occupation || '';
             document.getElementById('bio').value = profile.bio || '';
 
+            // 現在の画像を表示
+            if (profile.image) {
+                document.getElementById('currentImg').src = profile.image;
+                document.getElementById('currentImagePreview').style.display = 'block';
+            }
+
             // スキルを設定
             if (profile.skills && profile.skills.length > 0) {
                 skills.length = 0;
                 skills.push(...profile.skills);
                 updateSkillsDisplay();
             }
+        }
+
+        // 画像アップロード処理
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // ファイルサイズチェック (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('画像サイズが大きすぎます。5MB以下の画像を選択してください。');
+                event.target.value = '';
+                return;
+            }
+
+            // ファイル形式チェック
+            if (!file.type.match('image.*')) {
+                alert('画像ファイルを選択してください。');
+                event.target.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImage = e.target.result;
+                imageRemoved = false;
+                document.getElementById('previewImg').src = uploadedImage;
+                document.getElementById('imagePreview').style.display = 'block';
+                document.getElementById('currentImagePreview').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage() {
+            uploadedImage = null;
+            document.getElementById('profileImage').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            
+            // 現在の画像があれば再表示
+            if (currentProfile && currentProfile.image && !imageRemoved) {
+                document.getElementById('currentImagePreview').style.display = 'block';
+            }
+        }
+
+        function removeCurrentImage() {
+            imageRemoved = true;
+            document.getElementById('currentImagePreview').style.display = 'none';
         }
 
         // スキル入力の処理
@@ -417,7 +492,7 @@
         });
 
         function getFormData() {
-            return {
+            const data = {
                 name: document.getElementById('name').value,
                 age: document.getElementById('age').value,
                 location: document.getElementById('location').value,
@@ -425,6 +500,20 @@
                 bio: document.getElementById('bio').value,
                 skills: skills
             };
+
+            // 画像処理
+            if (uploadedImage) {
+                // 新しい画像がアップロードされた場合
+                data.image = uploadedImage;
+            } else if (imageRemoved) {
+                // 現在の画像を削除する場合
+                data.image = null;
+            } else if (currentProfile && currentProfile.image) {
+                // 画像の変更がない場合は現在の画像を保持
+                data.image = currentProfile.image;
+            }
+
+            return data;
         }
 
         async function enhanceProfileWithAI(profileData) {
