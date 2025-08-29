@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画像テスト - 性別判定アイコン</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+        }
+        .nav-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .nav-link:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .test-card {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .test-card:hover {
+            transform: translateY(-3px);
+            border-color: #667eea;
+        }
+        .test-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            border: 3px solid #f0f0f0;
+        }
+        .test-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .test-gender {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .test-occupation {
+            font-size: 0.8rem;
+            color: #888;
+            font-style: italic;
+        }
+        .image-info {
+            margin-top: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <a href="index.html" class="nav-link">🏠 メイン一覧</a>
+            <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+            <a href="community.html" class="nav-link">👥 コミュニティ</a>
+            <a href="simple-dashboard.html" class="nav-link">📋 スキル表示版</a>
+            <a href="login.html" class="nav-link">🔐 ログイン</a>
+            <a href="test-images.html" class="nav-link" style="background: #667eea; color: white;">🧪 画像テスト</a>
+        </div>
+        
+        <h1>🧪 画像・性別判定テスト</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            実際の画像が利用できない場合の性別判定アイコンの表示テスト
+        </p>
+        
+        <div class="test-grid" id="testGrid"></div>
+    </div>
+
+    <script>
+        // 詳細な性別推定機能
+        function estimateGender(name, occupation = '') {
+            if (!name) return 'unknown';
+            
+            // 男性を示唆する文字・パターン
+            const maleIndicators = [
+                '太郎', '一郎', '二郎', '三郎', '光', '健', '誠', '洋', '博', '雄', '男', '夫', '彦', 
+                '介', '助', '朗', '輝', '大', '翔', '隆', '明', '正', '和', '清', '武', '実', '治', 
+                'Taro', 'Hikaru', 'Takeshi', 'Hiroshi'
+            ];
+            
+            // 女性を示唆する文字・パターン
+            const femaleIndicators = [
+                '子', '美', '恵', '香', '奈', '菜', '花', '華', '愛', '彩', '咲', '千', '沙', '紗',
+                '里', '理', '絵', '江', '代', '世', '由', '佳', '加', '麻', '真', '優', '舞', '葉',
+                'ちか', 'あやか', 'はなこ', 'みか', 'ゆか', 'Ayaka', 'Chika', 'Hanako'
+            ];
+
+            // 職業からの推定補助
+            const maleOccupations = ['社長', 'CEO', 'CTO', '部長', '課長', '主任', '取締役', '代表'];
+            const femaleOccupations = ['看護師', '保育士', '受付', 'CA'];
+
+            // 名前での判定
+            for (let indicator of maleIndicators) {
+                if (name.includes(indicator)) return 'male';
+            }
+            
+            for (let indicator of femaleIndicators) {
+                if (name.includes(indicator)) return 'female';
+            }
+
+            // 職業での補助判定
+            if (occupation) {
+                for (let occ of maleOccupations) {
+                    if (occupation.includes(occ)) return 'male';
+                }
+                for (let occ of femaleOccupations) {
+                    if (occupation.includes(occ)) return 'female';
+                }
+            }
+            
+            return 'unknown';
+        }
+
+        function generateGenderIcon(name, gender, occupation = '') {
+            if (gender === 'unknown') {
+                gender = estimateGender(name, occupation);
+            }
+
+            const gradients = {
+                male: ['4A90E2', '357ABD'],     
+                female: ['E91E63', 'AD1457'],   
+                unknown: ['9E9E9E', '616161']   
+            };
+
+            // 絵文字を使わずシンプルなテキストアイコンに変更
+            const icons = {
+                male: 'M',      // Male
+                female: 'F',    // Female
+                unknown: '?'    // Unknown
+            };
+
+            const labels = {
+                male: '男性',
+                female: '女性', 
+                unknown: '不明'
+            };
+
+            const colors = gradients[gender] || gradients.unknown;
+            const icon = icons[gender] || icons.unknown;
+            const label = labels[gender] || labels.unknown;
+            
+            const displayName = name.length > 4 ? name.substring(0, 3) + '...' : name;
+            
+            return {
+                url: `https://via.placeholder.com/300x300/${colors[0]}/ffffff?text=${encodeURIComponent(icon + ' ' + displayName)}`,
+                gender: gender,
+                icon: icon,
+                label: label,
+                color: colors[0]
+            };
+        }
+
+        // テスト用プロフィールデータ
+        const testProfiles = [
+            { name: "園田彩掛", occupation: "早稲田大学大学院M2", realImage: "ayaka/profile.jpg" },
+            { name: "上林ちか", occupation: "プルデンシャル生命 ライフプランナー", realImage: null },
+            { name: "戸村光", occupation: "連続起業家・Forbes公式コラムニスト", realImage: null },
+            { name: "田中太郎", occupation: "営業部長", realImage: null },
+            { name: "山田花子", occupation: "デザイナー", realImage: null },
+            { name: "佐藤健", occupation: "エンジニア", realImage: null },
+            { name: "鈴木美咲", occupation: "マーケター", realImage: null },
+            { name: "高橋雄介", occupation: "プロダクトマネージャー", realImage: null },
+            { name: "渡辺優子", occupation: "看護師", realImage: null },
+            { name: "中村誠", occupation: "CEO", realImage: null },
+            { name: "林麻衣", occupation: "受付", realImage: null },
+            { name: "森田大輔", occupation: "取締役", realImage: null }
+        ];
+
+        function createTestCard(profile) {
+            const gender = estimateGender(profile.name, profile.occupation);
+            const genderData = generateGenderIcon(profile.name, gender, profile.occupation);
+            
+            // 実際の画像があるかテスト
+            const imageUrl = profile.realImage || genderData.url;
+            const imageType = profile.realImage ? '実際の画像' : '自動生成アイコン';
+            return `
+                <div class="test-card">
+                    <img src="${imageUrl}" alt="${profile.name}" class="test-image" 
+                         onerror="this.src='${genderData.url}'"
+                         style="border-color: #${genderData.color}">
+                    <div class="test-name">${profile.name} <span style="color: #${genderData.color}; font-weight: bold;">${genderData.label}</span></div>
+                    <div class="test-gender">判定: ${genderData.icon} (${genderData.label})</div>
+                    <div class="test-occupation">${profile.occupation}</div>
+                    <div class="image-info">
+                        画像: ${imageType}<br>
+                        判定結果: ${gender}<br>
+                        アイコン: ${genderData.icon}
+                    </div>
+                </div>
+            `;
+        }
+
+        // テストカードを生成
+        const testGrid = document.getElementById('testGrid');
+        testGrid.innerHTML = testProfiles.map(profile => createTestCard(profile)).join('');
+    </script>
+</body>
+</html>

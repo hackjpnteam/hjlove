@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ダッシュボード - プロフィール生成システム</title>
+    <script src="placeholder-generator.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .navbar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .navbar-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        .navbar-link:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .section-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #f0f0f0;
+        }
+        .profile-info h3 {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .profile-english {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .profile-occupation {
+            color: #667eea;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .profile-bio {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        .profile-skills {
+            margin-bottom: 15px;
+        }
+        .skills-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .skill-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .profile-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .upload-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .upload-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(255,107,107,0.4);
+        }
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: white;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .empty-state {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .empty-state h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        .empty-state p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        .tabs {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .tab {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .tab.active {
+            background: white;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">📇 プロフィール生成</div>
+        <div class="navbar-menu">
+            <span id="userInfo" class="navbar-link"></span>
+            <a href="#" class="navbar-link" onclick="logout()">ログアウト</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h1 class="section-title">人物プロフィール一覧</h1>
+            <p class="section-subtitle">名刺から自動生成されたプロフィールと既存のプロフィール</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('all')">すべて</div>
+            <div class="tab" onclick="switchTab('approved')">承認済み</div>
+            <div class="tab" onclick="switchTab('my')">自分のアップロード</div>
+        </div>
+
+        <div id="loadingDiv" class="loading">
+            <div class="spinner"></div>
+            <h3>プロフィールを読み込み中...</h3>
+        </div>
+
+        <div id="profilesGrid" class="profiles-grid" style="display: none;"></div>
+
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h3>📝 まだプロフィールがありません</h3>
+            <p>名刺をアップロードして最初のプロフィールを作成しましょう</p>
+            <a href="/upload" class="btn-primary">名刺をアップロード</a>
+        </div>
+    </div>
+
+    <a href="/upload" class="upload-fab">📷</a>
+
+    <script>
+        let currentUser = null;
+        let currentTab = 'all';
+
+        // 性別推定関数
+        function estimateGender(name) {
+            // 日本語の名前から性別を推定する簡単なルール
+            const maleNames = ['太郎', '一郎', '二郎', '三郎', '四郎', '五郎', '六郎', '七郎', '八郎', '九郎', '十郎', '光', '健', '誠', '洋', '博', '雄', '男', '夫', '彦', '介', '助', '朗'];
+            const femaleNames = ['子', '美', '恵', '香', '奈', '菜', '花', '華', '愛', '彩', '咲', '千', '沙', '紗', '里', '理', '絵', '江', '代', '世', 'ちか', 'あやか'];
+            
+            for (let male of maleNames) {
+                if (name.includes(male)) return 'male';
+            }
+            for (let female of femaleNames) {
+                if (name.includes(female)) return 'female';
+            }
+            return 'unknown';
+        }
+
+        // サンプル画像URL生成
+        function generateSampleImage(name, gender) {
+            const colors = ['#667eea', '#764ba2', '#4CAF50', '#2196F3', '#ff6b6b', '#ffa726'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            let icon = gender === 'male' ? 'M' : gender === 'female' ? 'F' : 'U';
+            const text = icon + ' ' + name;
+            
+            // Use local placeholder generator
+            return generatePlaceholder(300, 300, color, '#ffffff', text);
+        }
+
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab:nth-child(${tab === 'all' ? 1 : tab === 'approved' ? 2 : 3})`).classList.add('active');
+            
+            currentTab = tab;
+            loadProfiles();
+        }
+
+        function createProfileCard(profile) {
+            const gender = estimateGender(profile.name);
+            const sampleImage = generateSampleImage(profile.name, gender);
+            const imageUrl = profile.image || sampleImage;
+            
+            const englishName = profile.englishName ? 
+                `<div class="profile-english">${profile.englishName}</div>` : '';
+            
+            const age = profile.age ? `${profile.age}歳` : '';
+            const location = profile.location ? ` • ${profile.location}` : '';
+            
+            const skillsHtml = profile.skills && profile.skills.length > 0 ? 
+                `<div class="profile-skills">
+                    <span class="skills-label">スキル・専門分野</span>
+                    <div class="skills-list">
+                        ${profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                </div>` : '';
+            
+            const uploadedBy = profile.uploadedBy ? 
+                `アップロード: ${profile.uploadedBy.username || '不明'}` : '';
+            
+            const approvalStatus = profile.isApproved ? 
+                '<span style="color: #4CAF50;">✅ 承認済み</span>' : 
+                '<span style="color: #ff9800;">⏳ 承認待ち</span>';
+
+            const profileLink = profile.originalPage || '#';
+            const clickHandler = profile.originalPage ? 
+                `onclick="window.open('${profile.originalPage}', '_blank')"` : '';
+
+            return `
+                <div class="profile-card" ${clickHandler}>
+                    <div class="profile-header">
+                        <img src="${imageUrl}" alt="${profile.name}" class="profile-image" 
+                             onerror="this.src='${sampleImage}'">
+                        <div class="profile-info">
+                            <h3>${profile.name}</h3>
+                            ${englishName}
+                            <div class="profile-occupation">${profile.occupation || '職業不明'}${age}${location}</div>
+                        </div>
+                    </div>
+                    <div class="profile-bio">${profile.bio || '詳細情報はありません。'}</div>
+                    ${skillsHtml}
+                    <div class="profile-meta">
+                        <span>${uploadedBy}</span>
+                        <span>${approvalStatus}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadProfiles() {
+            const loadingDiv = document.getElementById('loadingDiv');
+            const profilesGrid = document.getElementById('profilesGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            loadingDiv.style.display = 'block';
+            profilesGrid.style.display = 'none';
+            emptyState.style.display = 'none';
+
+            try {
+                let endpoint = '/api/profiles';
+                if (currentTab === 'my') {
+                    endpoint = '/api/my-profiles';
+                } else if (currentTab === 'approved') {
+                    endpoint = '/api/profiles';
+                }
+
+                const response = await fetch(endpoint);
+                let profiles = [];
+
+                if (response.ok) {
+                    profiles = await response.json();
+                }
+
+                // 既存のプロフィールも含める（allタブまたはapprovedタブの場合）
+                if (currentTab === 'all' || currentTab === 'approved') {
+                    const existingProfiles = [
+                        {
+                            id: "ayaka",
+                            name: "園田彩掛",
+                            englishName: "Ayaka Sonoda",
+                            age: 23,
+                            occupation: "早稲田大学大学院M2",
+                            location: "群馬県",
+                            bio: "スキー同好会所属。母の乳がん体験をきっかけに、患者様とその家族を支える医療の重要性を実感。未来のMRを目指して日々学習中。",
+                            skills: ["スキー（特にコブ）", "パン・お菓子作り", "ボランティア活動", "教育支援"],
+                            image: "ayaka/profile.jpg",
+                            originalPage: "ayaka/index.html",
+                            isApproved: true
+                        },
+                        {
+                            id: "chika",
+                            name: "上林ちか",
+                            englishName: "Chika Kambayashi",
+                            occupation: "プルデンシャル生命 ライフプランナー",
+                            location: "東京",
+                            bio: "お客様一人ひとりに最適な保障設計をご提案。JC活動にも積極的に参加し、地元への貢献と人間的成長を目指しています。",
+                            skills: ["ライフプランニング", "保険設計", "問題解決", "JC活動"],
+                            originalPage: "chika/index.html",
+                            isApproved: true
+                        },
+                        {
+                            id: "hikaru",
+                            name: "戸村光",
+                            englishName: "Hikaru Tomura",
+                            age: 30,
+                            occupation: "連続起業家・Forbes公式コラムニスト",
+                            location: "シリコンバレー/東京",
+                            bio: "20歳でシリコンバレーにてHACKJPNを創業。スタートアップと投資家のための革新的なデータソリューションを提供。Forbes公式コラムニストとして活動。",
+                            skills: ["起業", "投資", "AI/機械学習", "メディア執筆"],
+                            originalPage: "hikaru/index.html",
+                            isApproved: true
+                        }
+                    ];
+
+                    profiles = [...existingProfiles, ...profiles];
+                }
+
+                loadingDiv.style.display = 'none';
+
+                if (profiles.length === 0) {
+                    emptyState.style.display = 'block';
+                } else {
+                    profilesGrid.style.display = 'grid';
+                    profilesGrid.innerHTML = profiles.map(profile => createProfileCard(profile)).join('');
+                }
+
+            } catch (error) {
+                console.error('プロフィール読み込みエラー:', error);
+                loadingDiv.style.display = 'none';
+                emptyState.style.display = 'block';
+            }
+        }
+
+        async function loadUser() {
+            try {
+                const response = await fetch('/api/user');
+                if (response.ok) {
+                    currentUser = await response.json();
+                    document.getElementById('userInfo').textContent = `${currentUser.username} さん`;
+                } else {
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (error) {
+                window.location.href = '/';
+            }
+        }
+
+        // 初期化
+        loadUser();
+        loadProfiles();
+    </script>
+</body>
+</html>

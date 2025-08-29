@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人物プロフィール一覧</title>
+    <script src="placeholder-generator.js"></script>
+    <script src="profile-generator.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .section-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+        .profile-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #f0f0f0;
+        }
+        .profile-info h3 {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .profile-english {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .profile-occupation {
+            color: #667eea;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .profile-bio {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+        .profile-skills {
+            margin-bottom: 15px;
+        }
+        .skills-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .skill-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .profile-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .demo-notice {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .nav-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .nav-link.current {
+            background: rgba(255,255,255,0.4);
+            color: #fff;
+        }
+        .search-filter-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .search-section {
+            margin-bottom: 25px;
+        }
+        .search-wrapper {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .search-input {
+            width: 100%;
+            padding: 18px 24px 18px 55px;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+            pointer-events: none;
+        }
+        .filter-section-title {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 12px 20px;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        .filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+        .filter-btn:hover {
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .filter-btn:hover::before {
+            left: 0;
+        }
+        .filter-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .filter-btn.active::before {
+            left: 0;
+        }
+        .filter-btn.special {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border-color: transparent;
+        }
+        .filter-btn.special:hover {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border-color: #ff6b6b;
+        }
+        .filter-btn.special.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            border-color: #ff6b6b;
+        }
+        .search-results-info {
+            text-align: center;
+            margin: 40px 0;
+            padding: 60px 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .search-results-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.6;
+        }
+        .search-results-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .search-results-subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .search-results-suggestions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .suggestion-btn {
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+        .suggestion-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+        .timeline-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .timeline-title {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+        .timeline-toggle {
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .timeline-toggle:hover {
+            background: rgba(102, 126, 234, 0.2);
+        }
+        .timeline-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+        .timeline-item:hover {
+            background-color: rgba(102, 126, 234, 0.05);
+            border-radius: 10px;
+        }
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        .timeline-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-action {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        .timeline-profile {
+            color: #667eea;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .timeline-profile:hover {
+            text-decoration: underline;
+        }
+        .timeline-time {
+            color: #999;
+            font-size: 0.85rem;
+        }
+        .timeline-collapsed {
+            display: none;
+        }
+        
+        /* レスポンシブデザイン */
+        @media (max-width: 768px) {
+            .search-filter-container {
+                padding: 20px;
+                margin: 20px 0;
+            }
+            .search-input {
+                padding: 16px 20px 16px 50px;
+                font-size: 16px;
+            }
+            .search-icon {
+                left: 18px;
+                font-size: 16px;
+            }
+            .filter-buttons {
+                gap: 8px;
+            }
+            .filter-btn {
+                padding: 10px 16px;
+                font-size: 0.8rem;
+                letter-spacing: 0.3px;
+            }
+            .filter-section-title {
+                font-size: 0.9rem;
+                margin-bottom: 16px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .filter-btn {
+                padding: 8px 12px;
+                font-size: 0.75rem;
+            }
+            .search-input {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header" id="navHeader">
+            <!-- ナビゲーションが動的に生成されます -->
+        </div>
+        
+
+
+
+        <!-- スタイリッシュな検索・フィルター -->
+        <div class="search-filter-container">
+            <!-- 検索セクション -->
+            <div class="search-section">
+                <div class="search-wrapper">
+                    <div class="search-icon">🔍</div>
+                    <input type="text" 
+                           id="searchInput" 
+                           class="search-input"
+                           placeholder="名前、職業、スキル、作成者で検索..." 
+                           onkeyup="performSearch()">
+                </div>
+            </div>
+            
+            <!-- フィルターセクション -->
+            <div class="filter-section">
+                <div class="filter-section-title">Categories</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all" onclick="filterProfiles('all')">
+                        すべて
+                    </button>
+                    <button class="filter-btn" data-filter="category-tech" onclick="filterProfiles('category-tech')">
+                        💻 Tech
+                    </button>
+                    <button class="filter-btn" data-filter="category-business" onclick="filterProfiles('category-business')">
+                        💼 Business
+                    </button>
+                    <button class="filter-btn" data-filter="category-creative" onclick="filterProfiles('category-creative')">
+                        🎨 Creative
+                    </button>
+                    <button class="filter-btn" data-filter="category-education" onclick="filterProfiles('category-education')">
+                        📚 Education
+                    </button>
+                    <button class="filter-btn" data-filter="category-other" onclick="filterProfiles('category-other')">
+                        ⚡ Other
+                    </button>
+                    <button class="filter-btn special" data-filter="created-by-me" onclick="filterProfiles('created-by-me')">
+                        👤 My Profiles
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="profiles-grid" id="profilesGrid"></div>
+
+        <!-- タイムライン -->
+        <div class="timeline-section">
+            <div class="timeline-header">
+                <h2 class="timeline-title">📅 アクティビティ タイムライン</h2>
+                <button class="timeline-toggle" onclick="window.location.href='timeline.html'" id="timelineToggle">
+                    📖 詳細を表示
+                </button>
+            </div>
+            <div class="timeline-items" id="timelineItems">
+                    <div class="timeline-item">
+                        <div class="timeline-avatar">戸</div>
+                        <div class="timeline-content">
+                            <div class="timeline-action">
+                                <strong>戸村光</strong> が 
+                                <span class="timeline-profile" onclick="viewProfile('chika')">上林ちか</span> 
+                                を招待しました
+                            </div>
+                            <div class="timeline-time">19ヶ月前</div>
+                        </div>
+                    </div>
+                
+                    <div class="timeline-item">
+                        <div class="timeline-avatar">戸</div>
+                        <div class="timeline-content">
+                            <div class="timeline-action">
+                                <strong>戸村光</strong> が 
+                                <span class="timeline-profile" onclick="viewProfile('ayaka')">園田彩掛</span> 
+                                を招待しました
+                            </div>
+                            <div class="timeline-time">19ヶ月前</div>
+                        </div>
+                    </div>
+                
+                    <div class="timeline-item">
+                        <div class="timeline-avatar">戸</div>
+                        <div class="timeline-content">
+                            <div class="timeline-action">
+                                <strong>戸村光</strong> が 
+                                <span class="timeline-profile" onclick="viewProfile('hikaru')">戸村光</span> 
+                                を招待しました
+                            </div>
+                            <div class="timeline-time">19ヶ月前</div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // 性別推定関数
+        function estimateGender(name) {
+            const maleNames = ['太郎', '一郎', '二郎', '光', '健', '誠', '洋', '博', '雄', '男', '夫', '彦'];
+            const femaleNames = ['子', '美', '恵', '香', '奈', '菜', '花', '華', '愛', '彩', '咲', 'ちか', 'あやか'];
+            
+            for (let male of maleNames) {
+                if (name.includes(male)) return 'male';
+            }
+            for (let female of femaleNames) {
+                if (name.includes(female)) return 'female';
+            }
+            return 'unknown';
+        }
+
+        // サンプル画像URL生成
+        function generateSampleImage(name, gender) {
+            const colors = ['#667eea', '#764ba2', '#4CAF50', '#2196F3', '#ff6b6b', '#ffa726'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            let icon = gender === 'male' ? 'M' : gender === 'female' ? 'F' : 'U';
+            const text = icon + ' ' + name;
+            
+            // Use local placeholder generator
+            return generatePlaceholder(300, 300, color, '#ffffff', text);
+        }
+
+        const profiles = [
+            {
+                id: "ayaka",
+                name: "園田彩掛",
+                englishName: "Ayaka Sonoda",
+                age: 23,
+                occupation: "早稲田大学大学院M2",
+                location: "群馬県",
+                bio: "スキー同好会所属。母の乳がん体験をきっかけに、患者様とその家族を支える医療の重要性を実感。未来のMRを目指して日々学習中。",
+                skills: ["スキー（特にコブ）", "パン・お菓子作り", "ボランティア活動", "教育支援", "医療知識"],
+                image: "ayaka/profile.jpg",
+                originalPage: "ayaka/index.html"
+            },
+            {
+                id: "chika",
+                name: "上林ちか",
+                englishName: "Chika Kambayashi",
+                occupation: "プルデンシャル生命 ライフプランナー",
+                location: "東京",
+                bio: "お客様一人ひとりに最適な保障設計をご提案。JC活動にも積極的に参加し、地元への貢献と人間的成長を目指しています。",
+                skills: ["ライフプランニング", "保険設計", "問題解決", "JC活動", "顧客対応", "リスク分析"],
+                originalPage: "chika/index.html"
+            },
+            {
+                id: "hikaru",
+                name: "戸村光",
+                englishName: "Hikaru Tomura",
+                age: 30,
+                occupation: "連続起業家・Forbes公式コラムニスト",
+                location: "シリコンバレー/東京",
+                bio: "20歳でシリコンバレーにてHACKJPNを創業。スタートアップと投資家のための革新的なデータソリューションを提供。Forbes公式コラムニストとして活動。",
+                skills: ["起業", "投資", "AI/機械学習", "メディア執筆", "データ分析", "ビジネス戦略"],
+                originalPage: "hikaru/index.html"
+            },
+            // デモ用の追加プロフィール
+            {
+                id: "sample1",
+                name: "田中花子",
+                englishName: "Hanako Tanaka",
+                age: 28,
+                occupation: "UXデザイナー",
+                location: "東京",
+                bio: "ユーザー中心設計を重視したデジタルプロダクトデザインを専門とするUXデザイナー。アクセシビリティにも造詣が深い。",
+                skills: ["UX/UIデザイン", "ユーザーリサーチ", "プロトタイピング", "Figma", "アクセシビリティ", "デザイン思考"]
+            },
+            {
+                id: "sample2",
+                name: "佐藤雄太",
+                englishName: "Yuta Sato",
+                age: 32,
+                occupation: "フルスタックエンジニア",
+                location: "大阪",
+                bio: "10年以上のWeb開発経験を持つフルスタックエンジニア。スタートアップから大企業まで幅広いプロジェクトに携わる。",
+                skills: ["JavaScript", "Python", "React", "Node.js", "AWS", "Docker", "アジャイル開発"]
+            },
+            {
+                id: "sample3",
+                name: "山田美咲",
+                englishName: "Misaki Yamada",
+                age: 26,
+                occupation: "マーケティングマネージャー",
+                location: "福岡",
+                bio: "デジタルマーケティングとブランド戦略を専門とするマーケター。データドリブンなアプローチで成果を上げている。",
+                skills: ["デジタルマーケティング", "Google Analytics", "SNSマーケティング", "ブランド戦略", "A/Bテスト", "SEO/SEM"]
+            }
+        ];
+
+        function createProfileCard(profile) {
+            const gender = estimateGender(profile.name);
+            const sampleImage = generateSampleImage(profile.name, gender);
+            const imageUrl = profile.image || sampleImage;
+            
+            const englishName = profile.englishName ? 
+                `<div class="profile-english">${profile.englishName}</div>` : '';
+            
+            const age = profile.age ? `${profile.age}歳` : '';
+            const location = profile.location ? ` • ${profile.location}` : '';
+            
+            const skillsHtml = profile.skills && profile.skills.length > 0 ? 
+                `<div class="profile-skills">
+                    <span class="skills-label">スキル・専門分野</span>
+                    <div class="skills-list">
+                        ${profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                </div>` : '';
+            
+            const clickHandler = profile.originalPage ? 
+                `onclick="window.open('${profile.originalPage}', '_blank')"` : '';
+
+            return `
+                <div class="profile-card" ${clickHandler}>
+                    <div class="profile-header">
+                        <img src="${imageUrl}" alt="${profile.name}" class="profile-image" 
+                             onerror="this.src='${sampleImage}'">
+                        <div class="profile-info">
+                            <h3>${profile.name}</h3>
+                            ${englishName}
+                            <div class="profile-occupation">${profile.occupation || '職業不明'}${age}${location}</div>
+                        </div>
+                    </div>
+                    <div class="profile-bio">${profile.bio || '詳細情報はありません。'}</div>
+                    ${skillsHtml}
+                    <div class="profile-meta">
+                        <span>デモ版プロフィール</span>
+                        <span style="color: #4CAF50;">✅ 表示中</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // プロフィール編集関数をグローバルに定義
+        function editProfile(profileId) {
+            window.location.href = `profile-edit.html?id=${profileId}`;
+        }
+
+        // 全プロフィールデータ（検索・フィルタリング用）
+        let allProfilesData = [];
+        let filteredProfiles = [];
+        let currentFilter = 'all';
+
+        // 検索機能を実装
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                filteredProfiles = allProfilesData;
+            } else {
+                filteredProfiles = allProfilesData.filter(profile => {
+                    const name = (profile.name || '').toLowerCase();
+                    const occupation = (profile.occupation || '').toLowerCase();
+                    const bio = (profile.bio || '').toLowerCase();
+                    const skills = (profile.skills || []).join(' ').toLowerCase();
+                    const creator = (profile.createdByName || profile.createdBy || '').toLowerCase();
+                    
+                    return name.includes(searchTerm) || 
+                           occupation.includes(searchTerm) || 
+                           bio.includes(searchTerm) || 
+                           skills.includes(searchTerm) || 
+                           creator.includes(searchTerm);
+                });
+            }
+            
+            applyCurrentFilter();
+            displayProfiles();
+        }
+
+        // カテゴリー・作成者フィルター機能を実装
+        function filterProfiles(filterType) {
+            currentFilter = filterType;
+            
+            // ボタンのアクティブ状態を更新
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            applyCurrentFilter();
+            displayProfiles();
+        }
+
+        // 現在のフィルターを適用
+        function applyCurrentFilter() {
+            let baseProfiles = filteredProfiles.length > 0 ? filteredProfiles : allProfilesData;
+            
+            switch (currentFilter) {
+                case 'all':
+                    filteredProfiles = baseProfiles;
+                    break;
+                case 'category-tech':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        const skills = (profile.skills || []).join(' ').toLowerCase();
+                        return occupation.includes('エンジニア') || occupation.includes('engineer') || 
+                               occupation.includes('プログラマ') || occupation.includes('developer') || 
+                               occupation.includes('システム') || occupation.includes('it') || 
+                               occupation.includes('web') || occupation.includes('アプリ') || 
+                               skills.includes('プログラミング') || skills.includes('javascript') || 
+                               skills.includes('python') || skills.includes('react') || skills.includes('node');
+                    });
+                    break;
+                case 'category-business':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return occupation.includes('マネージャー') || occupation.includes('manager') || 
+                               occupation.includes('営業') || occupation.includes('sales') || 
+                               occupation.includes('マーケティング') || occupation.includes('marketing') || 
+                               occupation.includes('コンサル') || occupation.includes('consultant') || 
+                               occupation.includes('起業') || occupation.includes('ceo') || 
+                               occupation.includes('経営');
+                    });
+                    break;
+                case 'category-creative':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return occupation.includes('デザイナー') || occupation.includes('designer') || 
+                               occupation.includes('クリエイティブ') || occupation.includes('creative') || 
+                               occupation.includes('アート') || occupation.includes('art') || 
+                               occupation.includes('写真') || occupation.includes('photo') || 
+                               occupation.includes('映像') || occupation.includes('動画');
+                    });
+                    break;
+                case 'category-education':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return occupation.includes('教授') || occupation.includes('professor') || 
+                               occupation.includes('研究') || occupation.includes('research') || 
+                               occupation.includes('教師') || occupation.includes('teacher') || 
+                               occupation.includes('講師') || occupation.includes('学生') || 
+                               occupation.includes('大学') || occupation.includes('university');
+                    });
+                    break;
+                case 'category-other':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return !occupation.includes('エンジニア') && !occupation.includes('engineer') && 
+                               !occupation.includes('マネージャー') && !occupation.includes('manager') && 
+                               !occupation.includes('デザイナー') && !occupation.includes('designer') && 
+                               !occupation.includes('教授') && !occupation.includes('professor') && 
+                               !occupation.includes('研究') && !occupation.includes('research');
+                    });
+                    break;
+                case 'created-by-me':
+                    const currentUser = getCurrentUser();
+                    if (currentUser) {
+                        filteredProfiles = baseProfiles.filter(profile => 
+                            profile.createdBy === currentUser.email
+                        );
+                    } else {
+                        filteredProfiles = [];
+                    }
+                    break;
+                default:
+                    filteredProfiles = baseProfiles;
+            }
+        }
+
+        // 現在のユーザー情報を取得
+        function getCurrentUser() {
+            try {
+                const currentUser = localStorage.getItem('currentUser');
+                return currentUser ? JSON.parse(currentUser) : null;
+            } catch (error) {
+                console.error('ユーザー情報取得エラー:', error);
+                return null;
+            }
+        }
+
+        // ナビゲーションを動的に生成
+        function generateNavigation() {
+            const currentUser = getCurrentUser();
+            const navHeader = document.getElementById('navHeader');
+            
+            if (currentUser) {
+                // ログイン中のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link current">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                    <span class="nav-link" style="background: rgba(255,255,255,0.1); cursor: default;">👋 ${currentUser.name || 'ユーザー'}</span>
+                    <a href="#" class="nav-link" onclick="logout()" style="background: rgba(255,69,58,0.8);">🚪 ログアウト</a>
+                `;
+            } else {
+                // 未ログイン時のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link current">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="login.html" class="nav-link">🔐 ログイン</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                `;
+            }
+        }
+
+        // ログアウト機能
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                localStorage.removeItem('currentUser');
+                generateNavigation();
+                showLogoutMessage();
+            }
+        }
+
+        // ログアウト成功メッセージ
+        function showLogoutMessage() {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #28a745;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            message.textContent = 'ログアウトしました';
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.remove();
+            }, 3000);
+        }
+
+        // 検索クリア機能
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            performSearch();
+        }
+
+        // 検索候補クリック機能
+        function searchSuggestion(term) {
+            document.getElementById('searchInput').value = term;
+            performSearch();
+        }
+
+        // アクティブフィルターボタンを更新
+        function updateActiveFilter(filterType) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${filterType}"]`).classList.add('active');
+        }
+
+        // タイムライン表示・非表示切り替え
+        let timelineExpanded = true;
+        function toggleTimeline() {
+            const timelineItems = document.getElementById('timelineItems');
+            const toggleBtn = document.getElementById('timelineToggle');
+            
+            if (timelineExpanded) {
+                timelineItems.classList.add('timeline-collapsed');
+                toggleBtn.textContent = '📖 詳細を表示';
+                timelineExpanded = false;
+            } else {
+                timelineItems.classList.remove('timeline-collapsed');
+                toggleBtn.textContent = '📕 閉じる';
+                timelineExpanded = true;
+            }
+        }
+
+        // タイムラインを生成
+        function generateTimeline() {
+            if (!window.profileGenerator) return;
+            
+            const allProfiles = window.profileGenerator.getAllProfilesForDisplay();
+            const timelineItems = document.getElementById('timelineItems');
+            
+            // 作成日時順にソート
+            const sortedProfiles = [...allProfiles].sort((a, b) => 
+                new Date(b.createdAt || '2024-01-01') - new Date(a.createdAt || '2024-01-01')
+            );
+            
+            // 最新10件のみ表示
+            const recentProfiles = sortedProfiles.slice(0, 10);
+            
+            if (recentProfiles.length === 0) {
+                timelineItems.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #999;">
+                        📝 まだプロフィールが作成されていません
+                    </div>
+                `;
+                return;
+            }
+            
+            const timelineHTML = recentProfiles.map(profile => {
+                const createdAt = profile.createdAt ? new Date(profile.createdAt) : new Date('2024-01-01');
+                const timeAgo = getTimeAgo(createdAt);
+                const creatorName = profile.createdByName || 'ユーザー';
+                const creatorInitial = creatorName.charAt(0);
+                
+                return `
+                    <div class="timeline-item">
+                        <div class="timeline-avatar">${creatorInitial}</div>
+                        <div class="timeline-content">
+                            <div class="timeline-action">
+                                <strong>${creatorName}</strong> が 
+                                <span class="timeline-profile" onclick="viewProfile('${profile.id}')">${profile.name}</span> 
+                                を招待しました
+                            </div>
+                            <div class="timeline-time">${timeAgo}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            timelineItems.innerHTML = timelineHTML;
+        }
+
+        // プロフィール表示関数
+        function viewProfile(profileId) {
+            window.location.href = `profile-view.html?id=${profileId}`;
+        }
+
+        // 時間の経過を表示
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 1000 / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            const months = Math.floor(days / 30);
+            
+            if (months > 0) {
+                return `${months}ヶ月前`;
+            } else if (days > 0) {
+                return `${days}日前`;
+            } else if (hours > 0) {
+                return `${hours}時間前`;
+            } else if (minutes > 0) {
+                return `${minutes}分前`;
+            } else {
+                return '今';
+            }
+        }
+
+        // プロフィールを表示
+        function displayProfiles() {
+            const profilesGrid = document.getElementById('profilesGrid');
+            if (!profilesGrid) return;
+            
+            if (filteredProfiles.length === 0) {
+                const searchTerm = document.getElementById('searchInput').value.trim();
+                const isSearching = searchTerm.length > 0;
+                const isFiltering = currentFilter !== 'all';
+                
+                let message = '';
+                let suggestions = '';
+                
+                if (isSearching && isFiltering) {
+                    message = `「${searchTerm}」に一致するプロフィールが見つかりませんでした`;
+                    suggestions = `
+                        <div class="search-results-suggestions">
+                            <button class="suggestion-btn" onclick="clearSearch()">検索をクリア</button>
+                            <button class="suggestion-btn" onclick="filterProfiles('all'); updateActiveFilter('all')">全カテゴリを表示</button>
+                        </div>
+                    `;
+                } else if (isSearching) {
+                    message = `「${searchTerm}」に一致するプロフィールが見つかりませんでした`;
+                    suggestions = `
+                        <div class="search-results-suggestions">
+                            <button class="suggestion-btn" onclick="clearSearch()">検索をクリア</button>
+                            <button class="suggestion-btn" onclick="searchSuggestion('エンジニア')">エンジニア</button>
+                            <button class="suggestion-btn" onclick="searchSuggestion('デザイナー')">デザイナー</button>
+                            <button class="suggestion-btn" onclick="searchSuggestion('マネージャー')">マネージャー</button>
+                        </div>
+                    `;
+                } else if (isFiltering) {
+                    const filterNames = {
+                        'category-tech': 'IT・技術系',
+                        'category-business': 'ビジネス',
+                        'category-creative': 'クリエイティブ',
+                        'category-education': '教育・研究',
+                        'category-other': 'その他',
+                        'created-by-me': '自分が作成したプロフィール'
+                    };
+                    message = `${filterNames[currentFilter] || 'このカテゴリー'}のプロフィールがまだありません`;
+                    suggestions = `
+                        <div class="search-results-suggestions">
+                            <button class="suggestion-btn" onclick="filterProfiles('all'); updateActiveFilter('all')">全てのプロフィールを表示</button>
+                            <a href="profile-create.html" class="suggestion-btn">新しいプロフィールを作成</a>
+                        </div>
+                    `;
+                } else {
+                    message = 'プロフィールがまだありません';
+                    suggestions = `
+                        <div class="search-results-suggestions">
+                            <a href="profile-create.html" class="suggestion-btn">最初のプロフィールを作成</a>
+                        </div>
+                    `;
+                }
+                
+                profilesGrid.innerHTML = `
+                    <div class="search-results-info">
+                        <div class="search-results-icon">🔍</div>
+                        <div class="search-results-title">${message}</div>
+                        <div class="search-results-subtitle">
+                            ${isSearching ? '別のキーワードで検索するか、フィルターを変更してみてください' : 
+                              isFiltering ? '他のカテゴリーを試すか、新しいプロフィールを作成してみてください' : 
+                              'プロフィールを作成して始めましょう'}
+                        </div>
+                        ${suggestions}
+                    </div>
+                `;
+            } else {
+                profilesGrid.innerHTML = filteredProfiles.map(profile => window.profileGenerator.createProfileCardHTML(profile)).join('');
+            }
+        }
+
+        // プロフィールカードを生成して表示
+        function loadAndDisplayProfiles() {
+            const profilesGrid = document.getElementById('profilesGrid');
+            if (profilesGrid && window.profileGenerator) {
+                allProfilesData = window.profileGenerator.getAllProfilesForDisplay();
+                filteredProfiles = allProfilesData;
+                displayProfiles();
+            }
+        }
+
+        // DOMContentLoaded後に実行
+        document.addEventListener('DOMContentLoaded', function() {
+            generateNavigation();
+            loadAndDisplayProfiles();
+            generateTimeline();
+        });
+        
+        // プロフィール生成後の自動更新のためのイベントリスナー
+        window.addEventListener('profileCreated', loadAndDisplayProfiles);
+    </script>
+</body>
+</html>

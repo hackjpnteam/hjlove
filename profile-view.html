@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロフィール表示</title>
+    <script src="profile-generator.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #6B7280;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --bg-light: #f8fafc;
+            --bg-white: #FFFFFF;
+            --border: #e2e8f0;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 6rem 2rem 4rem;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .profile-image-hero {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            margin: 0 auto 2rem;
+            display: block;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            text-align: center;
+            z-index: 2;
+            position: relative;
+            color: white;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            color: white;
+        }
+
+        .hero-subtitle {
+            display: block;
+            font-size: 0.5em;
+            font-weight: 300;
+            margin-top: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            font-weight: 400;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            padding: 5rem 2rem;
+        }
+
+        .section-alt {
+            background: var(--bg-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .about-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .about-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .about-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .about-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .bio-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .bio-title {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .bio-text {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .contact-content {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .contact-text {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .contact-link:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+
+        .contact-icon {
+            font-size: 1.25rem;
+        }
+
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .back-link:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .error-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .hero-cta {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .contact-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .contact-link {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← 一覧に戻る</a>
+
+    <div id="profileContent">
+        <!-- プロフィール内容がここに動的に生成されます -->
+    </div>
+
+    <script>
+        function getProfileFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        function loadProfile() {
+            const profileId = getProfileFromURL();
+            
+            if (!profileId) {
+                showError('プロフィールIDが指定されていません。');
+                return;
+            }
+
+            // 既存のハードコードされたプロフィール
+            const existingProfiles = [
+                {
+                    id: "ayaka",
+                    name: "園田彩掛",
+                    englishName: "Ayaka Sonoda",
+                    age: 23,
+                    occupation: "早稲田大学大学院M2",
+                    location: "群馬県",
+                    bio: "スキー同好会所属。母の乳がん体験をきっかけに、患者様とその家族を支える医療の重要性を実感。未来のMRを目指して日々学習中。",
+                    skills: ["スキー（特にコブ）", "パン・お菓子作り", "ボランティア活動", "教育支援", "医療知識"]
+                },
+                {
+                    id: "chika",
+                    name: "上林ちか",
+                    englishName: "Chika Kambayashi",
+                    occupation: "プルデンシャル生命 ライフプランナー",
+                    location: "東京",
+                    bio: "お客様一人ひとりに最適な保障設計をご提案。JC活動にも積極的に参加し、地元への貢献と人間的成長を目指しています。",
+                    skills: ["ライフプランニング", "保険設計", "問題解決", "JC活動", "顧客対応", "リスク分析"]
+                },
+                {
+                    id: "hikaru",
+                    name: "戸村光",
+                    englishName: "Hikaru Tomura",
+                    age: 30,
+                    occupation: "連続起業家・Forbes公式コラムニスト",
+                    location: "シリコンバレー/東京",
+                    bio: "20歳でシリコンバレーにてHACKJPNを創業。スタートアップと投資家のための革新的なデータソリューションを提供。Forbes公式コラムニストとして活動。",
+                    skills: ["起業", "投資", "AI/機械学習", "メディア執筆", "データ分析", "ビジネス戦略"]
+                }
+            ];
+
+            // 動的プロフィールも含めて検索
+            const dynamicProfiles = window.profileGenerator ? window.profileGenerator.getAllProfiles() : [];
+            const allProfiles = [...existingProfiles, ...dynamicProfiles];
+            const profile = allProfiles.find(p => p.id === profileId);
+
+            if (!profile) {
+                showError('指定されたプロフィールが見つかりません。');
+                return;
+            }
+
+            // プロフィール表示
+            displayProfile(profile);
+        }
+
+        function displayProfile(profile) {
+            const { name, englishName, age, location, occupation, bio, skills, image } = profile;
+            
+            const englishNameDisplay = englishName ? `<span class="hero-subtitle">${englishName}</span>` : '';
+            const ageDisplay = age ? `${age}歳` : '';
+            const locationDisplay = location ? ` • ${location}` : '';
+            const occupationFull = `${occupation}${ageDisplay}${locationDisplay}`;
+
+            // プロフィール画像を生成（アップロード画像があればそれを使用）
+            let profileImageHTML = '';
+            if (image) {
+                profileImageHTML = `<img src="${image}" alt="${name}" class="profile-image-hero">`;
+            }
+
+            // スキルカードを生成
+            const skillCards = skills && skills.length > 0 ? skills.map(skill => `
+                <div class="about-card">
+                    <div class="about-icon">💡</div>
+                    <h3>${skill}</h3>
+                    <p>専門スキルとして習得</p>
+                </div>
+            `).join('') : `
+                <div class="about-card">
+                    <div class="about-icon">👤</div>
+                    <h3>プロフェッショナル</h3>
+                    <p>${occupation}として活動しています。</p>
+                </div>
+            `;
+
+            // バイオグラフィーを段落に分割
+            const bioSentences = bio.split(/[。．！？\n]/).filter(s => s.trim().length > 0);
+            const bioParagraphs = bioSentences.map(sentence => `<p class="bio-text">${sentence.trim()}。</p>`).join('');
+
+            const profileHTML = `
+                <section class="hero">
+                    <div class="hero-content">
+                        ${profileImageHTML}
+                        <div class="hero-badge">${occupation.split(' ')[0]}</div>
+                        <h1 class="hero-title">${name}${englishNameDisplay}</h1>
+                        <p class="hero-description">${occupationFull}</p>
+                        <div class="hero-cta">
+                            <a href="#about" class="btn btn-primary">詳しく見る</a>
+                            <a href="#contact" class="btn btn-secondary">お問い合わせ</a>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="about" class="section">
+                    <div class="container">
+                        <h2 class="section-title">私について</h2>
+                        <div class="about-grid">
+                            ${skillCards}
+                        </div>
+                        <div class="bio-section">
+                            <h3 class="bio-title">プロフィール</h3>
+                            ${bioParagraphs}
+                        </div>
+                    </div>
+                </section>
+
+                <section id="contact" class="section section-alt">
+                    <div class="container">
+                        <h2 class="section-title">お問い合わせ</h2>
+                        <div class="contact-content">
+                            <p class="contact-text">
+                                ご質問やお仕事のご依頼など、お気軽にお問い合わせください。
+                                お返事をお待ちしております。
+                            </p>
+                            <div class="contact-links">
+                                <a href="#" class="contact-link">
+                                    <span class="contact-icon">📧</span>
+                                    メール
+                                </a>
+                                <a href="#" class="contact-link">
+                                    <span class="contact-icon">💼</span>
+                                    LinkedIn
+                                </a>
+                                <a href="#" class="contact-link">
+                                    <span class="contact-icon">🐦</span>
+                                    Twitter
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="footer">
+                    <div class="container">
+                        <p>&copy; 2024 ${name}. All rights reserved.</p>
+                    </div>
+                </footer>
+            `;
+
+            document.getElementById('profileContent').innerHTML = profileHTML;
+            document.title = `${name} - プロフィール`;
+        }
+
+        function showError(message) {
+            const errorHTML = `
+                <div class="error-message">
+                    <h1 class="error-title">エラー</h1>
+                    <p>${message}</p>
+                    <br>
+                    <a href="index.html" class="btn btn-primary">ホームに戻る</a>
+                </div>
+            `;
+            document.getElementById('profileContent').innerHTML = errorHTML;
+        }
+
+        // ページ読み込み時にプロフィールを表示
+        document.addEventListener('DOMContentLoaded', function() {
+            // profile-generator.jsの読み込みを待つ
+            if (window.profileGenerator) {
+                loadProfile();
+            } else {
+                setTimeout(loadProfile, 100);
+            }
+        });
+    </script>
+</body>
+</html>

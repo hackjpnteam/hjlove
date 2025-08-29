@@ -1,0 +1,38 @@
+[
+  {
+    "id": "ayaka",
+    "name": "園田彩掛",
+    "englishName": "Ayaka Sonoda",
+    "age": 23,
+    "occupation": "早稲田大学大学院M2",
+    "location": "群馬県",
+    "bio": "スキー同好会所属。母の乳がん体験をきっかけに、患者様とその家族を支える医療の重要性を実感。未来のMRを目指して日々学習中。",
+    "skills": ["スキー（特にコブ）", "パン・お菓子作り", "ボランティア活動", "教育支援"],
+    "image": "ayaka/profile.jpg",
+    "originalPage": "ayaka/index.html"
+  },
+  {
+    "id": "chika",
+    "name": "上林ちか",
+    "englishName": "Chika Kambayashi",
+    "age": null,
+    "occupation": "プルデンシャル生命 ライフプランナー",
+    "location": "東京",
+    "bio": "お客様一人ひとりに最適な保障設計をご提案。JC活動にも積極的に参加し、地元への貢献と人間的成長を目指しています。",
+    "skills": ["ライフプランニング", "保険設計", "問題解決", "JC活動"],
+    "image": "https://via.placeholder.com/300x300/4CAF50/ffffff?text=上林ちか",
+    "originalPage": "chika/index.html"
+  },
+  {
+    "id": "hikaru",
+    "name": "戸村光",
+    "englishName": "Hikaru Tomura",
+    "age": 30,
+    "occupation": "連続起業家・Forbes公式コラムニスト",
+    "location": "シリコンバレー/東京",
+    "bio": "20歳でシリコンバレーにてHACKJPNを創業。スタートアップと投資家のための革新的なデータソリューションを提供。Forbes公式コラムニストとして活動。",
+    "skills": ["起業", "投資", "AI/機械学習", "メディア執筆"],
+    "image": "https://via.placeholder.com/300x300/2196F3/ffffff?text=戸村光",
+    "originalPage": "hikaru/index.html"
+  }
+]

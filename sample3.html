@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鈴木一郎 - プロフィール</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s ease;
+        }
+        .back-link:hover {
+            opacity: 0.7;
+        }
+        .profile-header {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .profile-image {
+            width: 250px;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .profile-info {
+            flex: 1;
+            min-width: 250px;
+        }
+        .profile-name {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .profile-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #666;
+        }
+        .meta-label {
+            font-weight: 600;
+            min-width: 80px;
+        }
+        .profile-bio {
+            color: #555;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        .skills-section {
+            margin-top: 40px;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .skill-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← 一覧に戻る</a>
+        <div class="profile-header">
+            <img src="https://via.placeholder.com/300x300/ff6b6b/ffffff?text=鈴木一郎" alt="鈴木一郎" class="profile-image">
+            <div class="profile-info">
+                <h1 class="profile-name">鈴木一郎</h1>
+                <div class="profile-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">年齢:</span>
+                        <span>35歳</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">職業:</span>
+                        <span>プロダクトマネージャー</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">所在地:</span>
+                        <span>福岡</span>
+                    </div>
+                </div>
+                <p class="profile-bio">10年以上のIT業界経験。チームビルディングとプロダクト戦略が得意。</p>
+            </div>
+        </div>
+        
+        <div class="skills-section">
+            <h2 class="section-title">スキル</h2>
+            <div class="skills-grid">
+                <span class="skill-tag">Agile</span><span class="skill-tag">Scrum</span><span class="skill-tag">JIRA</span><span class="skill-tag">Product Strategy</span>
+            </div>
+        </div>
+    
+    </div>
+</body>
+</html>

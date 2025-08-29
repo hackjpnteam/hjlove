@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コミュニティ一覧 - プロフィール管理システム</title>
+    <script src="placeholder-generator.js"></script>
+    <script src="profile-generator.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #6B7280;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --bg-light: #f8fafc;
+            --bg-white: #FFFFFF;
+            --border: #e2e8f0;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            background: var(--bg-light);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Search and Filter */
+        .search-filter-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 15px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 12px 20px;
+            border: 2px solid transparent;
+            border-radius: 50px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .filter-btn.active {
+            background: var(--gradient-1);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Profile Grid */
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.15);
+            border-color: var(--primary);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .profile-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border);
+        }
+
+        .profile-info h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .profile-english {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .profile-occupation {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .profile-bio {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .profile-skills {
+            margin-top: 15px;
+        }
+
+        .skills-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .skill-tag {
+            background: var(--gradient-1);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .profile-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .edit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            margin-bottom: 30px;
+        }
+
+        .create-profile-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--gradient-1);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .create-profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .search-filter-section {
+                padding: 20px;
+            }
+
+            .profiles-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-buttons {
+                justify-content: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-btn {
+                font-size: 0.8rem;
+                padding: 10px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">プロフィール管理</a>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">🏠 ホーム</a>
+                <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                <a href="community.html" class="nav-link active">👥 コミュニティ</a>
+                <a href="profile-create.html" class="nav-link">➕ 作成</a>
+                <div id="authNavigation">
+                    <!-- 動的に生成される -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">コミュニティ一覧</h1>
+            <p class="page-subtitle">登録されているプロフィールをすべて確認できます</p>
+        </div>
+
+        <!-- 統計情報 -->
+        <div class="stats-section" id="statsSection">
+            <!-- 統計カードが動的に生成される -->
+        </div>
+
+        <!-- 検索・フィルター -->
+        <div class="search-filter-section">
+            <div class="search-wrapper">
+                <div class="search-icon">🔍</div>
+                <input type="text" id="searchInput" class="search-input" placeholder="名前、職業、スキル、作成者で検索..." onkeyup="performSearch()">
+            </div>
+            
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all" onclick="filterProfiles('all')">すべて</button>
+                <button class="filter-btn" data-filter="category-tech" onclick="filterProfiles('category-tech')">💻 Tech</button>
+                <button class="filter-btn" data-filter="category-business" onclick="filterProfiles('category-business')">💼 Business</button>
+                <button class="filter-btn" data-filter="category-creative" onclick="filterProfiles('category-creative')">🎨 Creative</button>
+                <button class="filter-btn" data-filter="category-education" onclick="filterProfiles('category-education')">📚 Education</button>
+                <button class="filter-btn" data-filter="category-other" onclick="filterProfiles('category-other')">⚡ Other</button>
+                <button class="filter-btn" data-filter="created-by-me" onclick="filterProfiles('created-by-me')">👤 My Profiles</button>
+            </div>
+        </div>
+
+        <!-- プロフィール一覧 -->
+        <div class="profiles-grid" id="profilesGrid">
+            <!-- プロフィールカードが動的に生成される -->
+        </div>
+    </div>
+
+    <script>
+        let allProfiles = [];
+        let filteredProfiles = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // 現在のユーザー情報を取得
+        function getCurrentUser() {
+            try {
+                const stored = localStorage.getItem('currentUser');
+                return stored ? JSON.parse(stored) : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        // ナビゲーションの動的更新
+        function updateNavigation() {
+            const currentUser = getCurrentUser();
+            const authNav = document.getElementById('authNavigation');
+            
+            if (currentUser) {
+                authNav.innerHTML = `
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                    <a href="#" class="nav-link" onclick="logout()">🚪 ログアウト</a>
+                `;
+            } else {
+                authNav.innerHTML = `
+                    <a href="login.html" class="nav-link">🔐 ログイン</a>
+                `;
+            }
+        }
+
+        // ログアウト機能
+        function logout() {
+            localStorage.removeItem('currentUser');
+            alert('ログアウトしました。');
+            window.location.href = 'index.html';
+        }
+
+        // 統計情報を更新
+        function updateStats() {
+            const totalProfiles = allProfiles.length;
+            const techProfiles = allProfiles.filter(profile => {
+                const occupation = (profile.occupation || '').toLowerCase();
+                const skills = (profile.skills || []).join(' ').toLowerCase();
+                return occupation.includes('エンジニア') || occupation.includes('engineer') || 
+                       occupation.includes('プログラマ') || occupation.includes('developer') || 
+                       skills.includes('プログラミング') || skills.includes('javascript');
+            }).length;
+
+            const businessProfiles = allProfiles.filter(profile => {
+                const occupation = (profile.occupation || '').toLowerCase();
+                return occupation.includes('マネージャー') || occupation.includes('manager') || 
+                       occupation.includes('営業') || occupation.includes('sales') || 
+                       occupation.includes('起業') || occupation.includes('ceo');
+            }).length;
+
+            const currentUser = getCurrentUser();
+            const myProfiles = currentUser ? allProfiles.filter(profile => 
+                profile.createdBy === currentUser.email
+            ).length : 0;
+
+            const statsSection = document.getElementById('statsSection');
+            statsSection.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number">${totalProfiles}</div>
+                    <div class="stat-label">総プロフィール数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💻</div>
+                    <div class="stat-number">${techProfiles}</div>
+                    <div class="stat-label">Tech系</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💼</div>
+                    <div class="stat-number">${businessProfiles}</div>
+                    <div class="stat-label">Business系</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">👤</div>
+                    <div class="stat-number">${myProfiles}</div>
+                    <div class="stat-label">マイプロフィール</div>
+                </div>
+            `;
+        }
+
+        // プロフィールデータを読み込み
+        function loadProfiles() {
+            if (!window.profileGenerator) {
+                setTimeout(loadProfiles, 100);
+                return;
+            }
+
+            const allProfilesData = window.profileGenerator.getAllProfilesForDisplay();
+            allProfiles = allProfilesData;
+            filteredProfiles = allProfiles;
+            
+            updateStats();
+            displayProfiles();
+        }
+
+        // 検索機能
+        function performSearch() {
+            currentSearch = document.getElementById('searchInput').value.toLowerCase();
+            applyFilters();
+        }
+
+        // フィルター機能
+        function filterProfiles(filterType) {
+            currentFilter = filterType;
+            
+            // フィルターボタンの状態更新
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-filter="${filterType}"]`).classList.add('active');
+            
+            applyFilters();
+        }
+
+        // フィルターを適用
+        function applyFilters() {
+            let baseProfiles = allProfiles;
+            
+            // カテゴリーフィルター
+            switch (currentFilter) {
+                case 'all':
+                    filteredProfiles = baseProfiles;
+                    break;
+                case 'category-tech':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        const skills = (profile.skills || []).join(' ').toLowerCase();
+                        return occupation.includes('エンジニア') || occupation.includes('engineer') || 
+                               occupation.includes('プログラマ') || occupation.includes('developer') || 
+                               occupation.includes('システム') || occupation.includes('it') || 
+                               occupation.includes('web') || occupation.includes('アプリ') || 
+                               skills.includes('プログラミング') || skills.includes('javascript') || 
+                               skills.includes('python') || skills.includes('react') || skills.includes('node');
+                    });
+                    break;
+                case 'category-business':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return occupation.includes('マネージャー') || occupation.includes('manager') || 
+                               occupation.includes('営業') || occupation.includes('sales') || 
+                               occupation.includes('マーケティング') || occupation.includes('marketing') || 
+                               occupation.includes('コンサル') || occupation.includes('consultant') || 
+                               occupation.includes('起業') || occupation.includes('ceo') || 
+                               occupation.includes('経営');
+                    });
+                    break;
+                case 'category-creative':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return occupation.includes('デザイナー') || occupation.includes('designer') || 
+                               occupation.includes('クリエイティブ') || occupation.includes('creative') || 
+                               occupation.includes('アート') || occupation.includes('art') || 
+                               occupation.includes('写真') || occupation.includes('photo') || 
+                               occupation.includes('映像') || occupation.includes('動画');
+                    });
+                    break;
+                case 'category-education':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return occupation.includes('教授') || occupation.includes('professor') || 
+                               occupation.includes('研究') || occupation.includes('research') || 
+                               occupation.includes('教師') || occupation.includes('teacher') || 
+                               occupation.includes('講師') || occupation.includes('学生') || 
+                               occupation.includes('大学') || occupation.includes('university');
+                    });
+                    break;
+                case 'category-other':
+                    filteredProfiles = baseProfiles.filter(profile => {
+                        const occupation = (profile.occupation || '').toLowerCase();
+                        return !occupation.includes('エンジニア') && !occupation.includes('engineer') && 
+                               !occupation.includes('マネージャー') && !occupation.includes('manager') && 
+                               !occupation.includes('デザイナー') && !occupation.includes('designer') && 
+                               !occupation.includes('教授') && !occupation.includes('professor') && 
+                               !occupation.includes('研究') && !occupation.includes('research');
+                    });
+                    break;
+                case 'created-by-me':
+                    const currentUser = getCurrentUser();
+                    if (currentUser) {
+                        filteredProfiles = baseProfiles.filter(profile => 
+                            profile.createdBy === currentUser.email
+                        );
+                    } else {
+                        filteredProfiles = [];
+                    }
+                    break;
+                default:
+                    filteredProfiles = baseProfiles;
+            }
+
+            // 検索フィルター
+            if (currentSearch) {
+                filteredProfiles = filteredProfiles.filter(profile => {
+                    const searchText = [
+                        profile.name,
+                        profile.englishName,
+                        profile.occupation,
+                        profile.bio,
+                        ...(profile.skills || []),
+                        profile.createdByName,
+                        profile.createdBy
+                    ].filter(Boolean).join(' ').toLowerCase();
+                    
+                    return searchText.includes(currentSearch);
+                });
+            }
+
+            displayProfiles();
+        }
+
+        // プロフィールを表示
+        function displayProfiles() {
+            const profilesGrid = document.getElementById('profilesGrid');
+            
+            if (filteredProfiles.length === 0) {
+                profilesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">👥</div>
+                        <div class="empty-title">プロフィールが見つかりません</div>
+                        <div class="empty-text">
+                            ${currentSearch ? '検索条件を変更してお試しください' : 'まだプロフィールが登録されていません'}
+                        </div>
+                        ${!currentSearch ? '<a href="profile-create.html" class="create-profile-btn">➕ 最初のプロフィールを作成</a>' : ''}
+                    </div>
+                `;
+                return;
+            }
+
+            profilesGrid.innerHTML = filteredProfiles.map(profile => createProfileCard(profile)).join('');
+        }
+
+        // プロフィールカードを作成
+        function createProfileCard(profile) {
+            const gender = estimateGender(profile.name);
+            const sampleImage = generateSampleImage(profile.name, gender);
+            const imageUrl = profile.image || sampleImage;
+            
+            const englishName = profile.englishName ? 
+                `<div class="profile-english">${profile.englishName}</div>` : '';
+            
+            const age = profile.age ? `${profile.age}歳` : '';
+            const location = profile.location ? ` • ${profile.location}` : '';
+            
+            const skillsHtml = profile.skills && profile.skills.length > 0 ? 
+                `<div class="profile-skills">
+                    <span class="skills-label">スキル・専門分野</span>
+                    <div class="skills-list">
+                        ${profile.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    </div>
+                </div>` : '';
+            
+            const clickHandler = profile.originalPage ? 
+                `onclick="window.open('${profile.originalPage}', '_blank')"` : 
+                `onclick="window.open('profile-view.html?id=${profile.id}', '_blank')"`;
+
+            const canEdit = window.profileGenerator && window.profileGenerator.canEditProfile(profile);
+            const editButtonHTML = (canEdit && !profile.originalPage) ? 
+                `<button class="edit-btn" onclick="event.stopPropagation(); editProfile('${profile.id}')">編集</button>` : '';
+
+            const fallbackImage = generatePlaceholder(60, 60, '#cccccc', '#ffffff', profile.name.charAt(0));
+            
+            return `
+                <div class="profile-card" ${clickHandler}>
+                    <div class="profile-header">
+                        <img src="${imageUrl}" alt="${profile.name}" class="profile-image" 
+                             onerror="this.src='${fallbackImage}'">
+                        <div class="profile-info">
+                            <h3>${profile.name}</h3>
+                            ${englishName}
+                            <div class="profile-occupation">${profile.occupation || '職業不明'}${age}${location}</div>
+                        </div>
+                    </div>
+                    <div class="profile-bio">${truncateText(profile.bio || '詳細情報はありません。', 120)}</div>
+                    ${skillsHtml}
+                    <div class="profile-meta">
+                        <span>👤 ${profile.createdByName || profile.createdBy || '不明'}</span>
+                        ${editButtonHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ユーティリティ関数
+        function estimateGender(name) {
+            if (!name) return 'unknown';
+            const maleNames = ['太郎', '一郎', '二郎', '光', '健', '誠', '洋', '博', '雄', '男', '夫', '彦'];
+            const femaleNames = ['子', '美', '恵', '香', '奈', '菜', '花', '華', '愛', '彩', '咲', 'ちか', 'あやか'];
+            
+            for (let male of maleNames) {
+                if (name.includes(male)) return 'male';
+            }
+            for (let female of femaleNames) {
+                if (name.includes(female)) return 'female';
+            }
+            return 'unknown';
+        }
+
+        function generateSampleImage(name, gender) {
+            const colors = ['#667eea', '#764ba2', '#4CAF50', '#2196F3', '#ff6b6b', '#ffa726'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            let icon = gender === 'male' ? 'M' : gender === 'female' ? 'F' : 'U';
+            const text = icon + ' ' + name;
+            
+            return generatePlaceholder(60, 60, color, '#ffffff', text);
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function editProfile(profileId) {
+            window.location.href = `profile-edit.html?id=${profileId}`;
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNavigation();
+            loadProfiles();
+
+            // プロフィール作成イベントをリッスン
+            window.addEventListener('profileCreated', function(event) {
+                setTimeout(() => {
+                    loadProfiles();
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

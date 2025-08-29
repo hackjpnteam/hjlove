@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活動タイムライン - プロフィール管理システム</title>
+    <script src="placeholder-generator.js"></script>
+    <script src="profile-generator.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary: #6B7280;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --bg-light: #f8fafc;
+            --bg-white: #FFFFFF;
+            --border: #e2e8f0;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            background: var(--bg-light);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(102, 126, 234, 0.1);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Timeline Styles */
+        .timeline-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .timeline-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .timeline-stats {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.25rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .timeline-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .timeline-user-info h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-time {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .timeline-action {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .timeline-profile {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .timeline-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-profile-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
+        }
+
+        .timeline-profile-info h5 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-profile-occupation {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .timeline-profile-bio {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .empty-timeline {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-subtext {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Filter Controls */
+        .timeline-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text-secondary);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .timeline-container {
+                padding: 1rem;
+            }
+
+            .timeline {
+                padding-left: 1.5rem;
+            }
+
+            .timeline-item::before {
+                left: -1.75rem;
+            }
+
+            .timeline-stats {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .timeline-header-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">プロフィール管理</a>
+            <div class="nav-menu" id="navMenu">
+                <a href="index.html" class="nav-link">🏠 ホーム</a>
+                <a href="timeline.html" class="nav-link active">📈 タイムライン</a>
+                <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                <a href="profile-create.html" class="nav-link">➕ 作成</a>
+                <div id="authNavigation">
+                    <!-- 動的に生成される -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <div class="page-header">
+            <h1 class="page-title">活動タイムライン</h1>
+            <p class="page-subtitle">プロフィール作成の履歴と活動状況を確認できます</p>
+        </div>
+
+        <div class="timeline-container">
+            <div class="timeline-header">
+                <h2 class="timeline-title">📈 最新の活動</h2>
+                <div class="timeline-stats" id="timelineStats">
+                    <!-- 統計情報が動的に生成される -->
+                </div>
+            </div>
+
+            <div class="timeline-filters" id="timelineFilters">
+                <button class="filter-btn active" data-filter="all">すべて</button>
+                <button class="filter-btn" data-filter="today">今日</button>
+                <button class="filter-btn" data-filter="week">今週</button>
+                <button class="filter-btn" data-filter="month">今月</button>
+            </div>
+
+            <div id="timelineContent">
+                <!-- タイムライン項目が動的に生成される -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+        let timelineData = [];
+
+        // 現在のユーザー情報を取得
+        function getCurrentUser() {
+            try {
+                const stored = localStorage.getItem('currentUser');
+                return stored ? JSON.parse(stored) : null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        // ナビゲーションの動的更新
+        function updateNavigation() {
+            const currentUser = getCurrentUser();
+            const authNav = document.getElementById('authNavigation');
+            
+            if (currentUser) {
+                authNav.innerHTML = `
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                    <a href="#" class="nav-link" onclick="logout()">🚪 ログアウト</a>
+                `;
+            } else {
+                authNav.innerHTML = `
+                    <a href="login.html" class="nav-link">🔐 ログイン</a>
+                `;
+            }
+        }
+
+        // ログアウト機能
+        function logout() {
+            localStorage.removeItem('currentUser');
+            alert('ログアウトしました。');
+            window.location.href = 'index.html';
+        }
+
+        // 時間の計算
+        function getTimeAgo(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffInSeconds = Math.floor((now - date) / 1000);
+
+            if (diffInSeconds < 60) return `${diffInSeconds}秒前`;
+            if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}分前`;
+            if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}時間前`;
+            if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}日前`;
+            if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)}ヶ月前`;
+            return `${Math.floor(diffInSeconds / 31536000)}年前`;
+        }
+
+        // プロフィールデータを取得してタイムライン用に変換
+        function loadTimelineData() {
+            if (!window.profileGenerator) return;
+
+            const allProfiles = window.profileGenerator.getAllProfilesForDisplay();
+            
+            timelineData = allProfiles
+                .filter(profile => profile.createdAt)
+                .map(profile => ({
+                    id: profile.id,
+                    type: 'profile_created',
+                    timestamp: profile.createdAt,
+                    user: {
+                        name: profile.createdByName || 'unknown',
+                        email: profile.createdBy || 'unknown@example.com',
+                        avatar: profile.createdByName ? profile.createdByName.charAt(0) : '?'
+                    },
+                    profile: profile
+                }))
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            updateTimelineStats();
+            displayTimeline();
+        }
+
+        // 統計情報を更新
+        function updateTimelineStats() {
+            const stats = document.getElementById('timelineStats');
+            const total = timelineData.length;
+            
+            const today = new Date();
+            const todayCount = timelineData.filter(item => {
+                const itemDate = new Date(item.timestamp);
+                return itemDate.toDateString() === today.toDateString();
+            }).length;
+
+            const thisWeekCount = timelineData.filter(item => {
+                const itemDate = new Date(item.timestamp);
+                const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                return itemDate >= weekAgo;
+            }).length;
+
+            stats.innerHTML = `
+                <div class="stat-item">
+                    <span>📊</span>
+                    <span>総作成数: ${total}</span>
+                </div>
+                <div class="stat-item">
+                    <span>📅</span>
+                    <span>今日: ${todayCount}</span>
+                </div>
+                <div class="stat-item">
+                    <span>📈</span>
+                    <span>今週: ${thisWeekCount}</span>
+                </div>
+            `;
+        }
+
+        // フィルター機能
+        function filterTimelineData() {
+            const now = new Date();
+            let filteredData = timelineData;
+
+            switch (currentFilter) {
+                case 'today':
+                    filteredData = timelineData.filter(item => {
+                        const itemDate = new Date(item.timestamp);
+                        return itemDate.toDateString() === now.toDateString();
+                    });
+                    break;
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    filteredData = timelineData.filter(item => {
+                        const itemDate = new Date(item.timestamp);
+                        return itemDate >= weekAgo;
+                    });
+                    break;
+                case 'month':
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    filteredData = timelineData.filter(item => {
+                        const itemDate = new Date(item.timestamp);
+                        return itemDate >= monthAgo;
+                    });
+                    break;
+            }
+
+            return filteredData;
+        }
+
+        // タイムラインを表示
+        function displayTimeline() {
+            const container = document.getElementById('timelineContent');
+            const filteredData = filterTimelineData();
+
+            if (filteredData.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-timeline">
+                        <div class="empty-icon">📭</div>
+                        <div class="empty-text">タイムライン項目がありません</div>
+                        <div class="empty-subtext">プロフィールを作成すると、ここに活動履歴が表示されます</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="timeline">
+                    ${filteredData.map(item => createTimelineItem(item)).join('')}
+                </div>
+            `;
+        }
+
+        // タイムライン項目を作成
+        function createTimelineItem(item) {
+            const profile = item.profile;
+            const gender = estimateGender(profile.name);
+            const profileImage = profile.image || generatePlaceholder(100, 100, '#667eea', '#ffffff', profile.name.charAt(0));
+
+            return `
+                <div class="timeline-item">
+                    <div class="timeline-header-info">
+                        <div class="timeline-user">
+                            <div class="timeline-avatar">${item.user.avatar}</div>
+                            <div class="timeline-user-info">
+                                <h4>${item.user.name}</h4>
+                                <div class="timeline-time">${getTimeAgo(item.timestamp)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-action">
+                        📝 ${profile.name}を招待しました
+                    </div>
+                    <div class="timeline-profile" onclick="window.open('profile-view.html?id=${profile.id}', '_blank')">
+                        <div class="timeline-profile-header">
+                            <img src="${profileImage}" alt="${profile.name}" class="timeline-profile-image" 
+                                 onerror="this.src='${generatePlaceholder(50, 50, '#cccccc', '#ffffff', profile.name.charAt(0))}'">
+                            <div class="timeline-profile-info">
+                                <h5>${profile.name}</h5>
+                                <div class="timeline-profile-occupation">${profile.occupation || '職業不明'}</div>
+                            </div>
+                        </div>
+                        <div class="timeline-profile-bio">
+                            ${truncateText(profile.bio || '詳細情報はありません。', 120)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ユーティリティ関数
+        function estimateGender(name) {
+            if (!name) return 'unknown';
+            const maleNames = ['太郎', '一郎', '二郎', '光', '健', '誠', '洋', '博', '雄', '男', '夫', '彦'];
+            const femaleNames = ['子', '美', '恵', '香', '奈', '菜', '花', '華', '愛', '彩', '咲', 'ちか', 'あやか'];
+            
+            for (let male of maleNames) {
+                if (name.includes(male)) return 'male';
+            }
+            for (let female of femaleNames) {
+                if (name.includes(female)) return 'female';
+            }
+            return 'unknown';
+        }
+
+        function truncateText(text, maxLength) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // フィルターボタンのイベントリスナー
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    displayTimeline();
+                });
+            });
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNavigation();
+            setupFilters();
+            
+            // profile-generator.jsの読み込みを待つ
+            if (window.profileGenerator) {
+                loadTimelineData();
+            } else {
+                setTimeout(() => {
+                    loadTimelineData();
+                }, 100);
+            }
+
+            // プロフィール作成イベントをリッスン
+            window.addEventListener('profileCreated', function(event) {
+                setTimeout(() => {
+                    loadTimelineData();
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

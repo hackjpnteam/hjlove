@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Placeholder Image Generator</title>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const width = parseInt(params.get('w')) || 300;
+        const height = parseInt(params.get('h')) || 300;
+        const bg = params.get('bg') || '2196F3';
+        const color = params.get('color') || 'ffffff';
+        const text = decodeURIComponent(params.get('text') || 'Placeholder');
+
+        // Create canvas
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw background
+        ctx.fillStyle = '#' + bg;
+        ctx.fillRect(0, 0, width, height);
+
+        // Draw text
+        ctx.fillStyle = '#' + color;
+        ctx.font = `${Math.min(width, height) / 8}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, width / 2, height / 2);
+
+        // Convert to data URL and redirect
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            window.location.href = url;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン</title>
+    <script src="placeholder-generator.js"></script>
+    <script src="profile-generator.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        .signup-btn {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .signup-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .signup-container {
+            display: none;
+        }
+        .demo-users {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .demo-users h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .demo-users p {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- ログイン画面 -->
+    <div id="loginScreen" class="login-container">
+        <a href="index.html" class="back-link">← ホームに戻る</a>
+        
+        <div class="login-header">
+            <h1>🔐 ログイン</h1>
+            <p>プロフィール管理にはログインが必要です</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label">メールアドレス</label>
+                <input type="email" class="form-input" id="email" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">パスワード</label>
+                <input type="password" class="form-input" id="password" required>
+            </div>
+            <button type="submit" class="login-btn">ログイン</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">アカウントをお持ちでない方は</p>
+            <button type="button" class="signup-btn" onclick="showSignupForm()">新規登録</button>
+        </div>
+
+        <div class="demo-users">
+            <h4>デモ用アカウント:</h4>
+            <p>メール: admin@example.com / パスワード: admin123</p>
+            <p>メール: user@example.com / パスワード: user123</p>
+            <p>メール: guest@example.com / パスワード: guest123</p>
+        </div>
+    </div>
+
+    <!-- 新規登録画面 -->
+    <div id="signupScreen" class="login-container signup-container">
+        <a href="index.html" class="back-link">← ホームに戻る</a>
+        
+        <div class="login-header">
+            <h1>📝 新規登録</h1>
+            <p>新しいアカウントを作成してください</p>
+        </div>
+
+        <div id="signupErrorMessage" class="error-message"></div>
+
+        <form id="signupForm">
+            <div class="form-group">
+                <label class="form-label">メールアドレス</label>
+                <input type="email" class="form-input" id="signupEmail" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">パスワード</label>
+                <input type="password" class="form-input" id="signupPassword" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label class="form-label">パスワード確認</label>
+                <input type="password" class="form-input" id="signupPasswordConfirm" required minlength="6">
+            </div>
+            <button type="submit" class="login-btn">登録</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">すでにアカウントをお持ちの方は</p>
+            <button type="button" class="signup-btn" onclick="showLoginForm()">ログイン</button>
+        </div>
+    </div>
+
+    <script>
+        // ユーザーデータ（ローカルストレージ管理）
+        function loadUsers() {
+            const stored = localStorage.getItem('registeredUsers');
+            const defaultUsers = {
+                'admin@example.com': { password: 'admin123', name: '管理者', role: 'admin' },
+                'user@example.com': { password: 'user123', name: 'ユーザー', role: 'user' },
+                'guest@example.com': { password: 'guest123', name: 'ゲスト', role: 'guest' }
+            };
+            
+            if (stored) {
+                return { ...defaultUsers, ...JSON.parse(stored) };
+            }
+            return defaultUsers;
+        }
+
+        function saveUsers(users) {
+            // デフォルトユーザーを除いて保存
+            const defaultEmails = ['admin@example.com', 'user@example.com', 'guest@example.com'];
+            const customUsers = {};
+            
+            Object.keys(users).forEach(email => {
+                if (!defaultEmails.includes(email)) {
+                    customUsers[email] = users[email];
+                }
+            });
+            
+            localStorage.setItem('registeredUsers', JSON.stringify(customUsers));
+        }
+
+        let users = loadUsers();
+
+        // 画面切り替え
+        function showSignupForm() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('signupScreen').style.display = 'block';
+        }
+
+        function showLoginForm() {
+            document.getElementById('signupScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+        }
+
+        // ログイン処理
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMessage');
+
+            if (users[email] && users[email].password === password) {
+                const currentUser = { email, ...users[email] };
+                
+                // 現在のユーザー情報をローカルストレージに保存
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                // ユーザーが作成したプロフィールを検索
+                if (window.profileGenerator) {
+                    const allProfiles = window.profileGenerator.getAllProfiles();
+                    const userProfiles = allProfiles.filter(profile => 
+                        profile.createdBy === currentUser.email
+                    );
+                    
+                    if (userProfiles.length > 0) {
+                        // 最新のプロフィールに移動
+                        const latestProfile = userProfiles.sort((a, b) => 
+                            new Date(b.createdAt) - new Date(a.createdAt)
+                        )[0];
+                        window.location.href = `profile-view.html?id=${latestProfile.id}`;
+                    } else {
+                        // プロフィールがない場合はマイページに移動
+                        window.location.href = 'my-page.html';
+                    }
+                } else {
+                    // profileGeneratorが利用できない場合はマイページに移動
+                    window.location.href = 'my-page.html';
+                }
+            } else {
+                errorDiv.textContent = 'メールアドレスまたはパスワードが間違っています';
+                errorDiv.style.display = 'block';
+            }
+        });
+
+        // 新規登録処理
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+            const errorDiv = document.getElementById('signupErrorMessage');
+
+            // バリデーション
+            if (password !== passwordConfirm) {
+                errorDiv.textContent = 'パスワードが一致しません';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (users[email]) {
+                errorDiv.textContent = 'このメールアドレスは既に登録されています';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                errorDiv.textContent = 'パスワードは6文字以上で入力してください';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            // 新規ユーザー登録
+            const name = email.split('@')[0]; // メールアドレスの@より前を名前とする
+            users[email] = {
+                password: password,
+                name: name,
+                role: 'user'
+            };
+
+            saveUsers(users);
+
+            // 成功メッセージ
+            alert(`登録が完了しました！\n\nメールアドレス: ${email}\nユーザー名: ${name}\n\nプロフィール作成ページに移動します。`);
+            
+            // 現在のユーザー情報を保存
+            localStorage.setItem('currentUser', JSON.stringify({
+                email: email,
+                name: name,
+                role: 'user'
+            }));
+            
+            // プロフィール作成ページに移動
+            window.location.href = 'profile-create.html';
+        });
+    </script>
+</body>
+</html>

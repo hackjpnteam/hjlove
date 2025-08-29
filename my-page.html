@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マイページ</title>
+    <script src="placeholder-generator.js"></script>
+    <script src="profile-generator.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .nav-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .nav-link.current {
+            background: rgba(255,255,255,0.4);
+            color: #fff;
+        }
+        .page-header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .page-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .page-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            background: rgba(102, 126, 234, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        .user-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .user-email {
+            color: #667eea;
+            font-weight: 500;
+        }
+        .stats-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .stats-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .profiles-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #f8f9fa;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .filter-btn:hover {
+            transform: translateY(-1px);
+        }
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .profile-card {
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .profile-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+        .profile-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #f0f0f0;
+        }
+        .profile-info h3 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        .profile-occupation {
+            color: #667eea;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .profile-bio {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        .profile-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.8rem;
+            color: #888;
+        }
+        .profile-date {
+            color: #999;
+        }
+        .profile-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+        .btn-view {
+            background: #667eea;
+            color: white;
+        }
+        .btn-edit {
+            background: #28a745;
+            color: white;
+        }
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        .action-btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .empty-text {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .empty-subtext {
+            font-size: 0.9rem;
+        }
+        .login-required {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .skill-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <a href="index.html" class="nav-link">🏠 ホーム</a>
+            <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+            <a href="community.html" class="nav-link">👥 コミュニティ</a>
+            <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+            <a href="login.html" class="nav-link">🔐 ログイン</a>
+            <a href="my-page.html" class="nav-link current">👤 マイページ</a>
+        </div>
+
+        <div class="page-header">
+            <h1 class="page-title">マイページ</h1>
+            <p class="page-subtitle">あなたが作成したプロフィールを管理できます</p>
+            <div class="user-info" id="userInfo">
+                <div class="user-name" id="userName">ゲストユーザー</div>
+                <div class="user-email" id="userEmail">未ログイン</div>
+            </div>
+        </div>
+
+        <div id="loginRequired" class="login-required" style="display: none;">
+            <h3>🔐 ログインが必要です</h3>
+            <p>マイページを利用するには、ログインまたは新規登録が必要です。</p>
+            <br>
+            <a href="login.html" class="nav-link">ログイン・新規登録</a>
+        </div>
+
+        <div id="mainContent" style="display: none;">
+            <div class="stats-section">
+                <h2 class="stats-title">📊 統計情報</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalProfiles">0</div>
+                        <div class="stat-label">作成プロフィール数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="thisMonthProfiles">0</div>
+                        <div class="stat-label">今月の作成数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSkills">0</div>
+                        <div class="stat-label">登録スキル数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="memberSince">-</div>
+                        <div class="stat-label">登録日</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profiles-section">
+                <div class="section-title">
+                    <span>📋 作成したプロフィール</span>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterProfiles('all')">すべて</button>
+                        <button class="filter-btn" onclick="filterProfiles('recent')">最近</button>
+                        <button class="filter-btn" onclick="filterProfiles('old')">古い順</button>
+                    </div>
+                </div>
+                <div class="profiles-grid" id="myProfilesGrid">
+                    <!-- プロフィールカードがここに動的に生成されます -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let myProfiles = [];
+        let currentFilter = 'all';
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            if (currentUser) {
+                showMainContent();
+                loadMyProfiles();
+                updateStats();
+            } else {
+                showLoginRequired();
+            }
+        });
+
+        // 現在のユーザー情報を読み込み
+        function loadCurrentUser() {
+            try {
+                const stored = localStorage.getItem('currentUser');
+                if (stored) {
+                    currentUser = JSON.parse(stored);
+                }
+            } catch (error) {
+                console.error('ユーザー情報読み込みエラー:', error);
+            }
+        }
+
+        // ログイン必須画面を表示
+        function showLoginRequired() {
+            document.getElementById('loginRequired').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        // メインコンテンツを表示
+        function showMainContent() {
+            document.getElementById('loginRequired').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            
+            // ユーザー情報を表示
+            document.getElementById('userName').textContent = currentUser.name || 'ユーザー';
+            document.getElementById('userEmail').textContent = currentUser.email || '';
+        }
+
+        // 自分のプロフィールを読み込み
+        function loadMyProfiles() {
+            if (!currentUser || !window.profileGenerator) return;
+            
+            const allProfiles = window.profileGenerator.getAllProfiles();
+            // 編集権限があるプロフィールのみを表示
+            myProfiles = allProfiles.filter(profile => 
+                window.profileGenerator.canEditProfile(profile)
+            );
+            
+            displayProfiles();
+        }
+
+        // プロフィールを表示
+        function displayProfiles() {
+            const grid = document.getElementById('myProfilesGrid');
+            
+            if (myProfiles.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <div class="empty-text">まだプロフィールを作成していません</div>
+                        <div class="empty-subtext">
+                            <a href="profile-create.html" style="color: #667eea; text-decoration: none;">
+                                新しいプロフィールを作成する →
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let sortedProfiles = [...myProfiles];
+            
+            // フィルタリング
+            switch (currentFilter) {
+                case 'recent':
+                    sortedProfiles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    break;
+                case 'old':
+                    sortedProfiles.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                    break;
+                default:
+                    sortedProfiles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            }
+
+            grid.innerHTML = sortedProfiles.map(profile => createMyProfileCard(profile)).join('');
+        }
+
+        // マイプロフィールカードを生成
+        function createMyProfileCard(profile) {
+            const createdDate = new Date(profile.createdAt);
+            const formattedDate = createdDate.toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            const age = profile.age ? `${profile.age}歳` : '';
+            const location = profile.location ? ` • ${profile.location}` : '';
+            
+            const skillsHtml = profile.skills && profile.skills.length > 0 ? 
+                `<div class="skills-list">
+                    ${profile.skills.slice(0, 5).map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    ${profile.skills.length > 5 ? `<span class="skill-tag">+${profile.skills.length - 5}</span>` : ''}
+                </div>` : '';
+
+            const imageUrl = profile.image || window.profileGenerator.generateSampleImage(profile.name, window.profileGenerator.estimateGender(profile.name));
+
+            return `
+                <div class="profile-card" onclick="viewProfile('${profile.id}')">
+                    <div class="profile-header">
+                        <img src="${imageUrl}" alt="${profile.name}" class="profile-image" 
+                             onerror="this.src='${window.profileGenerator.generateSampleImage(profile.name, 'unknown')}'">
+                        <div class="profile-info">
+                            <h3>${profile.name}</h3>
+                            <div class="profile-occupation">${profile.occupation}${age}${location}</div>
+                        </div>
+                    </div>
+                    <div class="profile-bio">${truncateText(profile.bio || '', 100)}</div>
+                    ${skillsHtml}
+                    <div class="profile-meta">
+                        <div class="profile-date">作成日: ${formattedDate}</div>
+                        <div class="profile-actions">
+                            <button class="action-btn btn-view" onclick="event.stopPropagation(); viewProfile('${profile.id}')">表示</button>
+                            <button class="action-btn btn-edit" onclick="event.stopPropagation(); editProfile('${profile.id}')">編集</button>
+                            <button class="action-btn btn-delete" onclick="event.stopPropagation(); deleteProfile('${profile.id}')">削除</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 統計情報を更新
+        function updateStats() {
+            if (!currentUser || myProfiles.length === 0) return;
+
+            // 総プロフィール数
+            document.getElementById('totalProfiles').textContent = myProfiles.length;
+
+            // 今月の作成数
+            const thisMonth = new Date().getMonth();
+            const thisYear = new Date().getFullYear();
+            const thisMonthCount = myProfiles.filter(profile => {
+                const createdDate = new Date(profile.createdAt);
+                return createdDate.getMonth() === thisMonth && createdDate.getFullYear() === thisYear;
+            }).length;
+            document.getElementById('thisMonthProfiles').textContent = thisMonthCount;
+
+            // 総スキル数（重複除去）
+            const allSkills = new Set();
+            myProfiles.forEach(profile => {
+                if (profile.skills) {
+                    profile.skills.forEach(skill => allSkills.add(skill));
+                }
+            });
+            document.getElementById('totalSkills').textContent = allSkills.size;
+
+            // 登録日（最初のプロフィール作成日）
+            const oldestProfile = myProfiles.reduce((oldest, current) => {
+                return new Date(current.createdAt) < new Date(oldest.createdAt) ? current : oldest;
+            });
+            const memberSince = new Date(oldestProfile.createdAt).toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: 'short'
+            });
+            document.getElementById('memberSince').textContent = memberSince;
+        }
+
+        // フィルタリング
+        function filterProfiles(filter) {
+            currentFilter = filter;
+            
+            // ボタンのアクティブ状態を更新
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayProfiles();
+        }
+
+        // プロフィール表示
+        function viewProfile(profileId) {
+            window.open(`profile-view.html?id=${profileId}`, '_blank');
+        }
+
+        // プロフィール編集
+        function editProfile(profileId) {
+            window.location.href = `profile-edit.html?id=${profileId}`;
+        }
+
+        // プロフィール削除
+        function deleteProfile(profileId) {
+            const profile = myProfiles.find(p => p.id === profileId);
+            if (!profile) return;
+
+            if (confirm(`「${profile.name}」のプロフィールを削除しますか？\nこの操作は元に戻せません。`)) {
+                try {
+                    window.profileGenerator.deleteProfile(profileId);
+                    
+                    // ローカルリストから削除
+                    myProfiles = myProfiles.filter(p => p.id !== profileId);
+                    
+                    // 表示を更新
+                    displayProfiles();
+                    updateStats();
+                    
+                    // 成功メッセージ
+                    showNotification('プロフィールを削除しました', 'success');
+                } catch (error) {
+                    console.error('削除エラー:', error);
+                    showNotification('プロフィールの削除に失敗しました', 'error');
+                }
+            }
+        }
+
+        // テキストを切り詰める
+        function truncateText(text, maxLength) {
+            if (!text || text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        // 通知を表示
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
