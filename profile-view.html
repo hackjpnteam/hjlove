@@ -492,20 +492,31 @@
                 profileImageHTML = `<img src="${image}" alt="${name}" class="profile-image-hero">`;
             }
 
-            // スキルカードを生成
+            // スキル名に基づいてアイコンを選択する関数
+            function getSkillIcon(skill) {
+                const skillLower = skill.toLowerCase();
+                if (skillLower.includes('ai') || skillLower.includes('人工知能') || skillLower.includes('機械学習')) return '🤖';
+                if (skillLower.includes('エンジニア') || skillLower.includes('プログラム') || skillLower.includes('コード') || skillLower.includes('開発')) return '👨‍💻';
+                if (skillLower.includes('投資') || skillLower.includes('株') || skillLower.includes('金融') || skillLower.includes('finance')) return '📈';
+                if (skillLower.includes('シリコンバレー') || skillLower.includes('テック') || skillLower.includes('スタートアップ')) return '🏙️';
+                if (skillLower.includes('ポケモン') || skillLower.includes('ゲーム') || skillLower.includes('アニメ')) return '⚡';
+                if (skillLower.includes('散歩') || skillLower.includes('ウォーキング') || skillLower.includes('運動')) return '🚶‍♂️';
+                if (skillLower.includes('デザイン') || skillLower.includes('ui') || skillLower.includes('ux')) return '🎨';
+                if (skillLower.includes('マーケティング') || skillLower.includes('営業') || skillLower.includes('sales')) return '📊';
+                if (skillLower.includes('写真') || skillLower.includes('photo') || skillLower.includes('カメラ')) return '📷';
+                if (skillLower.includes('音楽') || skillLower.includes('music') || skillLower.includes('楽器')) return '🎵';
+                if (skillLower.includes('料理') || skillLower.includes('cooking') || skillLower.includes('食')) return '👨‍🍳';
+                if (skillLower.includes('教育') || skillLower.includes('教師') || skillLower.includes('研修')) return '📚';
+                if (skillLower.includes('言語') || skillLower.includes('英語') || skillLower.includes('翻訳')) return '🗣️';
+                if (skillLower.includes('管理') || skillLower.includes('マネジメント') || skillLower.includes('リーダー')) return '👑';
+                if (skillLower.includes('健康') || skillLower.includes('医療') || skillLower.includes('ヘルス')) return '⚕️';
+                return '💡'; // デフォルト
+            }
+
+            // スキルハッシュタグを生成
             const skillCards = skills && skills.length > 0 ? skills.map(skill => `
-                <div class="about-card">
-                    <div class="about-icon">💡</div>
-                    <h3>${skill}</h3>
-                    <p>専門スキルとして習得</p>
-                </div>
-            `).join('') : `
-                <div class="about-card">
-                    <div class="about-icon">👤</div>
-                    <h3>プロフェッショナル</h3>
-                    <p>${occupation}として活動しています。</p>
-                </div>
-            `;
+                <span class="about-card">#${skill}</span>
+            `).join('') : `<span class="about-card">#${occupation}</span>`;
 
             // バイオグラフィーを段落に分割
             const bioSentences = bio.split(/[。．！？\n]/).filter(s => s.trim().length > 0);

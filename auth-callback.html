@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>認証処理中...</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .loading-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="spinner"></div>
+        <h2>認証処理中...</h2>
+        <p>しばらくお待ちください</p>
+    </div>
+
+    <script>
+        // Handle OAuth callback
+        function handleCallback() {
+            // Get the authorization code from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const error = urlParams.get('error');
+
+            if (error) {
+                alert('認証エラー: ' + error);
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (code) {
+                // In a real implementation, you would send this code to your backend
+                // For now, we'll handle it in the frontend (not recommended for production)
+                
+                // Store a temporary auth flag
+                localStorage.setItem('oauth_callback', JSON.stringify({
+                    code: code,
+                    state: state,
+                    timestamp: Date.now()
+                }));
+
+                // Redirect back to login page to complete the authentication
+                window.location.href = 'login.html?oauth=complete';
+            } else {
+                // No code received, redirect to login
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Execute callback handler
+        handleCallback();
+    </script>
+</body>
+</html>

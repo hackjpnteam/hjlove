@@ -33,7 +33,44 @@
             font-family: 'Noto Sans JP', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             color: var(--text-primary);
             line-height: 1.6;
-            background: var(--bg-light);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-link.current {
+            background: rgba(255,255,255,0.4);
+            color: #fff;
         }
 
         /* Navigation */
@@ -95,7 +132,7 @@
         .main-container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 0 2rem 2rem 2rem;
         }
 
         .page-header {
@@ -106,15 +143,14 @@
         .page-title {
             font-size: 2.5rem;
             font-weight: 800;
-            background: var(--gradient-2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: white;
             margin-bottom: 1rem;
         }
 
         .page-subtitle {
-            color: var(--text-secondary);
+            color: white;
             font-size: 1.1rem;
+            opacity: 0.9;
         }
 
         /* Timeline Styles */
@@ -365,20 +401,11 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-brand">プロフィール管理</a>
-            <div class="nav-menu" id="navMenu">
-                <a href="index.html" class="nav-link">🏠 ホーム</a>
-                <a href="timeline.html" class="nav-link active">📈 タイムライン</a>
-                <a href="community.html" class="nav-link">👥 コミュニティ</a>
-                <a href="profile-create.html" class="nav-link">➕ 作成</a>
-                <div id="authNavigation">
-                    <!-- 動的に生成される -->
-                </div>
-            </div>
+    <div class="container" style="padding-top: 0;">
+        <div class="nav-header" id="navHeader" style="background: rgba(255,255,255,0.2); border-radius: 15px; padding: 15px; margin-bottom: 20px; backdrop-filter: blur(10px);">
+            <!-- ナビゲーションが動的に生成されます -->
         </div>
-    </nav>
+    </div>
 
     <div class="main-container">
         <div class="page-header">
@@ -421,19 +448,32 @@
             }
         }
 
-        // ナビゲーションの動的更新
-        function updateNavigation() {
+        // ナビゲーションを動的に生成
+        function generateNavigation() {
             const currentUser = getCurrentUser();
-            const authNav = document.getElementById('authNavigation');
+            const navHeader = document.getElementById('navHeader');
             
             if (currentUser) {
-                authNav.innerHTML = `
+                // ログイン中のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link current">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link">📅 イベント</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
                     <a href="my-page.html" class="nav-link">👤 マイページ</a>
-                    <a href="#" class="nav-link" onclick="logout()">🚪 ログアウト</a>
+                    <span class="nav-link" style="background: rgba(255,255,255,0.1); cursor: default;">👋 ${currentUser.name || 'ユーザー'}</span>
+                    <a href="#" class="nav-link" onclick="logout()" style="background: rgba(255,69,58,0.8);">🚪 ログアウト</a>
                 `;
             } else {
-                authNav.innerHTML = `
+                // 未ログイン時のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link current">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link">📅 イベント</a>
                     <a href="login.html" class="nav-link">🔐 ログイン</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
                 `;
             }
         }
@@ -459,13 +499,30 @@
             return `${Math.floor(diffInSeconds / 31536000)}年前`;
         }
 
+        // イベント作成者情報を取得
+        function getEventCreatorInfo(email) {
+            try {
+                const users = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                const defaultUsers = {
+                    'admin@example.com': { name: '管理者' },
+                    'user@example.com': { name: 'ユーザー' },
+                    'guest@example.com': { name: 'ゲスト' }
+                };
+                return users[email] || defaultUsers[email] || null;
+            } catch (error) {
+                console.error('イベント作成者情報取得エラー:', error);
+                return null;
+            }
+        }
+
         // プロフィールデータを取得してタイムライン用に変換
         function loadTimelineData() {
             if (!window.profileGenerator) return;
 
             const allProfiles = window.profileGenerator.getAllProfilesForDisplay();
             
-            timelineData = allProfiles
+            // プロフィール作成のタイムライン項目
+            const profileTimeline = allProfiles
                 .filter(profile => profile.createdAt)
                 .map(profile => ({
                     id: profile.id,
@@ -477,7 +534,29 @@
                         avatar: profile.createdByName ? profile.createdByName.charAt(0) : '?'
                     },
                     profile: profile
-                }))
+                }));
+
+            // イベント作成のタイムライン項目
+            const events = JSON.parse(localStorage.getItem('communityEvents') || '[]');
+            const eventTimeline = events
+                .filter(event => event.createdAt)
+                .map(event => {
+                    const createdByUser = getEventCreatorInfo(event.createdBy);
+                    return {
+                        id: event.id,
+                        type: 'event_created',
+                        timestamp: event.createdAt,
+                        user: {
+                            name: createdByUser ? createdByUser.name : event.createdBy.split('@')[0],
+                            email: event.createdBy,
+                            avatar: createdByUser ? createdByUser.name.charAt(0) : event.createdBy.charAt(0).toUpperCase()
+                        },
+                        event: event
+                    };
+                });
+
+            // 全てのタイムライン項目を統合してソート
+            timelineData = [...profileTimeline, ...eventTimeline]
                 .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             updateTimelineStats();
@@ -573,9 +652,25 @@
 
         // タイムライン項目を作成
         function createTimelineItem(item) {
+            if (item.type === 'profile_created') {
+                return createProfileTimelineItem(item);
+            } else if (item.type === 'event_created') {
+                return createEventTimelineItem(item);
+            }
+            return '';
+        }
+
+        // プロフィール作成のタイムライン項目
+        function createProfileTimelineItem(item) {
             const profile = item.profile;
             const gender = estimateGender(profile.name);
             const profileImage = profile.image || generatePlaceholder(100, 100, '#667eea', '#ffffff', profile.name.charAt(0));
+            
+            // 招待者情報を取得
+            const inviterInfo = getInviterInfo(profile.createdBy);
+            const actionText = inviterInfo ? 
+                `👥 ${inviterInfo.name}さんが ${profile.name} を招待しました` : 
+                `📝 ${profile.name} のプロフィールを作成しました`;
 
             return `
                 <div class="timeline-item">
@@ -589,7 +684,7 @@
                         </div>
                     </div>
                     <div class="timeline-action">
-                        📝 ${profile.name}を招待しました
+                        ${actionText}
                     </div>
                     <div class="timeline-profile" onclick="window.open('profile-view.html?id=${profile.id}', '_blank')">
                         <div class="timeline-profile-header">
@@ -606,6 +701,67 @@
                     </div>
                 </div>
             `;
+        }
+
+        // イベント作成のタイムライン項目
+        function createEventTimelineItem(item) {
+            const event = item.event;
+            const eventDate = new Date(event.date);
+            
+            return `
+                <div class="timeline-item">
+                    <div class="timeline-header-info">
+                        <div class="timeline-user">
+                            <div class="timeline-avatar">${item.user.avatar}</div>
+                            <div class="timeline-user-info">
+                                <h4>${item.user.name}</h4>
+                                <div class="timeline-time">${getTimeAgo(item.timestamp)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-action">
+                        📅 ${event.title} を開催します
+                    </div>
+                    <div class="timeline-profile" onclick="window.open('event-detail.html?id=${event.id}', '_blank')" style="background: #f8f9ff; border-left: 4px solid #667eea;">
+                        <div class="timeline-profile-header">
+                            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem;">📅</div>
+                            <div class="timeline-profile-info">
+                                <h5>${event.title}</h5>
+                                <div class="timeline-profile-occupation">📅 ${formatEventDate(eventDate)} • 📍 ${event.location}</div>
+                            </div>
+                        </div>
+                        <div class="timeline-profile-bio">
+                            ${truncateText(event.description || 'イベントの詳細はありません。', 120)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 招待者情報を取得
+        function getInviterInfo(userEmail) {
+            try {
+                const users = JSON.parse(localStorage.getItem('users') || '{}');
+                const user = users[userEmail];
+                if (user && user.invitedBy) {
+                    const inviter = users[user.invitedBy];
+                    return inviter ? { name: inviter.name, email: user.invitedBy } : null;
+                }
+            } catch (error) {
+                console.error('招待者情報取得エラー:', error);
+            }
+            return null;
+        }
+
+        // イベント日時をフォーマット
+        function formatEventDate(date) {
+            const options = { 
+                month: 'short', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit'
+            };
+            return date.toLocaleDateString('ja-JP', options);
         }
 
         // ユーティリティ関数
@@ -644,7 +800,7 @@
 
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', function() {
-            updateNavigation();
+            generateNavigation();
             setupFilters();
             
             // profile-generator.jsの読み込みを待つ

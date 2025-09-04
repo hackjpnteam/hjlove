@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth設定確認ガイド</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1a73e8;
+            border-bottom: 3px solid #1a73e8;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+            border-left: 4px solid #1a73e8;
+            padding-left: 10px;
+        }
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #34a853;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .error {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        .copy-btn {
+            background: #34a853;
+            padding: 5px 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Google OAuth設定確認ガイド</h1>
+        
+        <div class="error">
+            <strong>現在のエラー:</strong> "The given origin is not allowed for the given client ID"<br>
+            これはGoogle Cloud Consoleでの承認済みオリジン設定が必要であることを示しています。
+        </div>
+
+        <h2>📍 現在の環境情報</h2>
+        <div class="step">
+            <p><strong>あなたのオリジン:</strong> <span id="current-origin"></span></p>
+            <p><strong>クライアントID:</strong> 770946554968-cf14im7fgm9ng8lmko4ltik2rns2udhb.apps.googleusercontent.com</p>
+        </div>
+
+        <h2>✅ ステップ1: Google Cloud Consoleにアクセス</h2>
+        <div class="step">
+            <ol>
+                <li><a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console - 認証情報ページ</a>を開く</li>
+                <li>正しいプロジェクトが選択されていることを確認（上部のプロジェクト名を確認）</li>
+                <li>「OAuth 2.0 クライアント ID」セクションを見つける</li>
+                <li>クライアントID <code>770946554968-cf14im7fgm9ng8lmko4ltik2rns2udhb...</code> をクリック</li>
+            </ol>
+        </div>
+
+        <h2>✅ ステップ2: 承認済みのJavaScript生成元を追加</h2>
+        <div class="step">
+            <p>「<strong>承認済みの JavaScript 生成元</strong>」セクションに以下のURLをすべて追加してください：</p>
+            <div class="code-block">
+http://localhost:8000
+http://localhost:3000
+http://localhost:3001
+http://127.0.0.1:8000
+http://127.0.0.1:3000
+http://127.0.0.1:3001
+            </div>
+            <button onclick="copyOrigins()">📋 URLをコピー</button>
+            <div class="warning">
+                <strong>注意:</strong> 各URLは別々の行に追加してください。「URIを追加」ボタンをクリックして1つずつ追加します。
+            </div>
+        </div>
+
+        <h2>✅ ステップ3: リダイレクトURIを追加（オプション）</h2>
+        <div class="step">
+            <p>「<strong>承認済みのリダイレクト URI</strong>」セクションに以下を追加：</p>
+            <div class="code-block">
+http://localhost:8000/auth-callback.html
+http://localhost:3000/auth-callback.html
+http://localhost:3001/auth-callback.html
+            </div>
+            <button onclick="copyRedirects()">📋 URIをコピー</button>
+        </div>
+
+        <h2>✅ ステップ4: 保存して待機</h2>
+        <div class="step">
+            <ol>
+                <li>画面下部の「<strong>保存</strong>」ボタンをクリック</li>
+                <li><strong>5-10分待つ</strong>（Google側で設定が反映されるまで時間がかかります）</li>
+                <li>ブラウザのキャッシュをクリア（Cmd+Shift+R または Ctrl+Shift+R）</li>
+            </ol>
+        </div>
+
+        <h2>🧪 ステップ5: テスト</h2>
+        <div class="step">
+            <p>設定が反映されたら、以下のリンクでテストしてください：</p>
+            <ul>
+                <li><a href="/google-simple-test.html">シンプルテストページ</a></li>
+                <li><a href="/login.html">ログインページ</a></li>
+                <li><a href="/google-test.html">詳細診断ページ</a></li>
+            </ul>
+        </div>
+
+        <h2>❓ よくある問題と解決策</h2>
+        
+        <div class="warning">
+            <h3>問題: 設定を保存したのにまだエラーが出る</h3>
+            <ul>
+                <li>Google側の反映に5-10分かかります。しばらく待ってください。</li>
+                <li>ブラウザを完全に閉じて再起動してみてください。</li>
+                <li>プライベート/シークレットモードで試してみてください。</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <h3>問題: "FedCM migration" の警告が出る</h3>
+            <p>これは将来的な変更に関する警告で、現在の動作には影響しません。無視して構いません。</p>
+        </div>
+
+        <div class="success">
+            <h3>設定が完了したら</h3>
+            <p>Google認証ボタンをクリックすると、Googleのログイン画面が表示されるはずです。</p>
+        </div>
+
+        <h2>📝 現在の設定状態を確認</h2>
+        <button onclick="testGoogleAuth()">Google認証をテスト</button>
+        <div id="test-result"></div>
+    </div>
+
+    <script>
+        // Display current origin
+        document.getElementById('current-origin').textContent = window.location.origin;
+
+        function copyOrigins() {
+            const origins = `http://localhost:8000
+http://localhost:3000
+http://localhost:3001
+http://127.0.0.1:8000
+http://127.0.0.1:3000
+http://127.0.0.1:3001`;
+            navigator.clipboard.writeText(origins);
+            alert('承認済みJavaScript生成元のURLをクリップボードにコピーしました！');
+        }
+
+        function copyRedirects() {
+            const redirects = `http://localhost:8000/auth-callback.html
+http://localhost:3000/auth-callback.html
+http://localhost:3001/auth-callback.html`;
+            navigator.clipboard.writeText(redirects);
+            alert('リダイレクトURIをクリップボードにコピーしました！');
+        }
+
+        function testGoogleAuth() {
+            const resultDiv = document.getElementById('test-result');
+            
+            // Simple test to check if we can load Google library
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.onload = function() {
+                resultDiv.innerHTML = '<div class="success">✅ Google Sign-Inライブラリの読み込みに成功しました。</div>';
+                
+                // Try to initialize
+                if (window.google && window.google.accounts) {
+                    try {
+                        google.accounts.id.initialize({
+                            client_id: '770946554968-cf14im7fgm9ng8lmko4ltik2rns2udhb.apps.googleusercontent.com',
+                            callback: function(response) {
+                                console.log('Auth response:', response);
+                            }
+                        });
+                        resultDiv.innerHTML += '<div class="success">✅ Google Sign-Inの初期化に成功しました。設定は正しく反映されています。</div>';
+                    } catch (error) {
+                        resultDiv.innerHTML += '<div class="error">❌ 初期化エラー: ' + error.message + '</div>';
+                    }
+                }
+            };
+            script.onerror = function() {
+                resultDiv.innerHTML = '<div class="error">❌ Google Sign-Inライブラリの読み込みに失敗しました。</div>';
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+</body>
+</html>

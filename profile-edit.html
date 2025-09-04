@@ -280,6 +280,22 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">メールアドレス</label>
+                    <input type="email" class="form-input" id="email" placeholder="例: your.name@example.com">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Facebook</label>
+                        <input type="url" class="form-input" id="facebook" placeholder="例: https://facebook.com/yourname">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Instagram</label>
+                        <input type="text" class="form-input" id="instagram" placeholder="例: @yourhandle">
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">自己紹介文 *</label>
                     <textarea class="form-textarea" id="bio" required></textarea>
                 </div>
@@ -292,6 +308,16 @@
                     <small style="display: block; color: #666; margin-top: 5px; font-size: 0.85rem;">
                         ✨ チェックすると、編集した内容でClaude AIが詳細情報を再生成します
                     </small>
+                </div>
+
+<div class="form-group">
+                    <label class="form-label">こんな人に会いたい</label>
+                    <textarea class="form-textarea" id="wantToMeet" placeholder="どのような人と繋がりたいか、会いたいかを記載してください..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ギブできること</label>
+                    <textarea class="form-textarea" id="canGive" placeholder="あなたが他の人に提供できること、サポートできることを記載してください..."></textarea>
                 </div>
 
                 <div class="form-group">
@@ -355,6 +381,11 @@
             document.getElementById('location').value = profile.location || '';
             document.getElementById('occupation').value = profile.occupation || '';
             document.getElementById('bio').value = profile.bio || '';
+            document.getElementById('email').value = profile.email || '';
+            document.getElementById('facebook').value = profile.facebook || '';
+            document.getElementById('instagram').value = profile.instagram || '';
+            document.getElementById('wantToMeet').value = profile.wantToMeet || '';
+            document.getElementById('canGive').value = profile.canGive || '';
 
             // 現在の画像を表示
             if (profile.image) {
@@ -498,6 +529,11 @@
                 location: document.getElementById('location').value,
                 occupation: document.getElementById('occupation').value,
                 bio: document.getElementById('bio').value,
+                email: document.getElementById('email').value,
+                facebook: document.getElementById('facebook').value,
+                instagram: document.getElementById('instagram').value,
+                wantToMeet: document.getElementById('wantToMeet').value,
+                canGive: document.getElementById('canGive').value,
                 skills: skills
             };
 

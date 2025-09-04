@@ -212,12 +212,8 @@
 </head>
 <body>
     <div class="container">
-        <div class="nav-header">
-            <a href="index.html" class="nav-link">🏠 ホーム</a>
-            <a href="timeline.html" class="nav-link">📈 タイムライン</a>
-            <a href="community.html" class="nav-link">👥 コミュニティ</a>
-            <a href="login.html" class="nav-link">🔐 ログイン</a>
-            <a href="profile-create.html" class="nav-link current">➕ プロフィール作成</a>
+        <div class="nav-header" id="navHeader">
+            <!-- ナビゲーションが動的に生成されます -->
         </div>
 
         <div class="form-container">
@@ -268,6 +264,22 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label">メールアドレス</label>
+                    <input type="email" class="form-input" id="email" placeholder="例: your.name@example.com">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Facebook</label>
+                        <input type="url" class="form-input" id="facebook" placeholder="例: https://facebook.com/yourname">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Instagram</label>
+                        <input type="text" class="form-input" id="instagram" placeholder="例: @yourhandle">
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label">自己紹介文 *</label>
                     <textarea class="form-textarea" id="bio" required placeholder="3〜5行程度の簡単な自己紹介を書いてください。AI が自動で詳細なプロフィールページを生成します。&#10;例: 東京在住のWebデザイナーです。ユーザー体験を重視したデザインが得意で、5年間で100以上のサイトを制作しました。最近はAIツールを活用した効率的なデザインプロセスに興味があります。"></textarea>
                 </div>
@@ -290,6 +302,16 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label">こんな人に会いたい</label>
+                    <textarea class="form-textarea" id="wantToMeet" placeholder="どのような人と繋がりたいか、会いたいかを記載してください..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">ギブできること</label>
+                    <textarea class="form-textarea" id="canGive" placeholder="あなたが他の人に提供できること、サポートできることを記載してください..."></textarea>
+                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="resetForm()">リセット</button>
                     <button type="submit" class="btn btn-primary">プロフィール生成</button>
@@ -308,6 +330,77 @@
     <script>
         const skills = [];
         let uploadedImage = null;
+        let currentUser = null;
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            generateNavigation();
+            initializeForm();
+        });
+
+        // フォームを初期化（ログインユーザー情報を設定）
+        function initializeForm() {
+            if (currentUser) {
+                // ログインユーザーの情報を自動入力
+                document.getElementById('name').value = currentUser.name || '';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('email').readOnly = true;
+                document.getElementById('email').style.backgroundColor = '#f8f9fa';
+                document.getElementById('email').style.cursor = 'not-allowed';
+                
+                updatePreview();
+            }
+        }
+
+        // 現在のユーザー情報を取得
+        function loadCurrentUser() {
+            try {
+                const stored = localStorage.getItem('currentUser');
+                if (stored) {
+                    currentUser = JSON.parse(stored);
+                }
+            } catch (error) {
+                console.error('ユーザー情報取得エラー:', error);
+            }
+        }
+
+        // ナビゲーションを動的に生成
+        function generateNavigation() {
+            const navHeader = document.getElementById('navHeader');
+            
+            if (currentUser) {
+                // ログイン中のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link">📅 イベント</a>
+                    <a href="profile-create.html" class="nav-link current">➕ プロフィール作成</a>
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                    <span class="nav-link" style="background: rgba(255,255,255,0.1); cursor: default;">👋 ${currentUser.name || 'ユーザー'}</span>
+                    <a href="#" class="nav-link" onclick="logout()" style="background: rgba(255,69,58,0.8);">🚪 ログアウト</a>
+                `;
+            } else {
+                // 未ログイン時のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link">📅 イベント</a>
+                    <a href="login.html" class="nav-link">🔐 ログイン</a>
+                    <a href="profile-create.html" class="nav-link current">➕ プロフィール作成</a>
+                `;
+            }
+        }
+
+        // ログアウト機能
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
 
         // 画像アップロード処理
         function handleImageUpload(event) {
@@ -399,6 +492,14 @@
             const skillsHtml = skills.length > 0 ? 
                 `<div style="margin-top: 15px;"><strong>スキル:</strong> ${skills.join(', ')}</div>` : '';
 
+            // ソーシャルリンク
+            const socialLinks = [];
+            if (formData.email) socialLinks.push(`<a href="mailto:${formData.email}" style="color: #667eea; text-decoration: none;">📧 Email</a>`);
+            if (formData.facebook) socialLinks.push(`<a href="${formData.facebook}" target="_blank" style="color: #1877f2; text-decoration: none;">📘 Facebook</a>`);
+            if (formData.instagram) socialLinks.push(`<a href="https://instagram.com/${formData.instagram.replace('@', '')}" target="_blank" style="color: #e4405f; text-decoration: none;">📷 Instagram</a>`);
+            const socialHtml = socialLinks.length > 0 ? 
+                `<div style="margin-top: 15px; display: flex; gap: 15px; flex-wrap: wrap;">${socialLinks.join('')}</div>` : '';
+
             previewCard.innerHTML = `
                 <div style="font-size: 1.2rem; font-weight: 600; color: #333; margin-bottom: 5px;">
                     ${formData.name || 'お名前'}
@@ -410,6 +511,7 @@
                     ${formData.bio || '自己紹介文'}
                 </div>
                 ${skillsHtml}
+                ${socialHtml}
             `;
         }
 
@@ -420,6 +522,11 @@
                 location: document.getElementById('location').value,
                 occupation: document.getElementById('occupation').value,
                 bio: document.getElementById('bio').value,
+                email: document.getElementById('email').value,
+                facebook: document.getElementById('facebook').value,
+                instagram: document.getElementById('instagram').value,
+                wantToMeet: document.getElementById('wantToMeet').value,
+                canGive: document.getElementById('canGive').value,
                 skills: skills,
                 image: uploadedImage
             };
@@ -435,7 +542,7 @@
         }
 
         // リアルタイムプレビュー更新
-        ['name', 'age', 'location', 'occupation', 'bio'].forEach(id => {
+        ['name', 'age', 'location', 'occupation', 'bio', 'email', 'facebook', 'instagram', 'wantToMeet', 'canGive'].forEach(id => {
             document.getElementById(id).addEventListener('input', updatePreview);
         });
 

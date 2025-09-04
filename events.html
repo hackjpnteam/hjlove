@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>イベント</title>
+    <script src="placeholder-generator.js"></script>
+    <script src="profile-generator.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .nav-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .nav-link.current {
+            background: rgba(255,255,255,0.4);
+            color: #fff;
+        }
+        .page-header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .page-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .page-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .events-controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .create-event-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .create-event-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .filter-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .event-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .event-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .event-status.upcoming {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .event-status.ongoing {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .event-status.ended {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        .event-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        .event-title {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .event-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        .event-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .event-detail {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        .event-participants {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .participant-avatars {
+            display: flex;
+            gap: -5px;
+        }
+        .participant-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -5px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .participant-count {
+            color: #888;
+            font-size: 0.85rem;
+        }
+        .join-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+        .join-btn:hover {
+            background: #218838;
+        }
+        .join-btn.joined {
+            background: #6c757d;
+            cursor: default;
+        }
+        .checkin-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+        .checkin-btn:hover {
+            background: #138496;
+        }
+        .checkin-btn.checked-in {
+            background: #28a745;
+        }
+        .edit-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+        .attendance-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .checked-in-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+        }
+        .empty-state {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 30px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        /* Create Event Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e9ecef;
+        }
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+            .events-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header" id="navHeader">
+            <!-- ナビゲーションが動的に生成されます -->
+        </div>
+
+        <div class="page-header">
+            <h1 class="page-title">📅 イベント</h1>
+            <p class="page-subtitle">コミュニティイベントを探そう</p>
+        </div>
+
+        <div class="events-controls">
+            <button class="create-event-btn" onclick="openCreateEventModal()">➕ イベント作成</button>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="filter-btn active" onclick="filterEvents('all')">すべて</button>
+                <button class="filter-btn" onclick="filterEvents('upcoming')">開催予定</button>
+                <button class="filter-btn" onclick="filterEvents('ongoing')">開催中</button>
+                <button class="filter-btn" onclick="filterEvents('ended')">終了</button>
+            </div>
+        </div>
+
+        <div class="events-grid" id="eventsGrid">
+            <!-- イベントカードがここに表示されます -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">📅</div>
+            <h3>イベントがありません</h3>
+            <p>新しいイベントを作成して、コミュニティを盛り上げましょう！</p>
+            <button class="create-event-btn" onclick="openCreateEventModal()" style="margin-top: 20px;">➕ 最初のイベントを作成</button>
+        </div>
+    </div>
+
+    <!-- Create Event Modal -->
+    <div class="modal-overlay" id="createEventModal">
+        <div class="modal-content">
+            <h2 class="modal-title">新しいイベントを作成</h2>
+            
+            <form id="createEventForm">
+                <div class="form-group">
+                    <label class="form-label">イベント名</label>
+                    <input type="text" class="form-input" id="eventTitle" required placeholder="例: プログラミング勉強会">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">説明</label>
+                    <textarea class="form-textarea" id="eventDescription" placeholder="イベントの詳細を記載してください..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">開催日時</label>
+                    <input type="datetime-local" class="form-input" id="eventDateTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">場所</label>
+                    <input type="text" class="form-input" id="eventLocation" placeholder="例: オンライン / 渋谷区〇〇">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">参加費</label>
+                    <input type="text" class="form-input" id="eventPrice" placeholder="例: 無料 / 1000円">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">定員</label>
+                    <input type="number" class="form-input" id="eventCapacity" min="1" placeholder="例: 20">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateEventModal()">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">イベント作成</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Edit Event Modal -->
+    <div class="modal-overlay" id="editEventModal">
+        <div class="modal-content">
+            <h2 class="modal-title">イベントを編集</h2>
+            
+            <form id="editEventForm">
+                <div class="form-group">
+                    <label class="form-label">イベント名</label>
+                    <input type="text" class="form-input" id="editEventTitle" required placeholder="例: プログラミング勉強会">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">説明</label>
+                    <textarea class="form-textarea" id="editEventDescription" placeholder="イベントの詳細を記載してください..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">開催日時</label>
+                    <input type="datetime-local" class="form-input" id="editEventDateTime" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">場所</label>
+                    <input type="text" class="form-input" id="editEventLocation" placeholder="例: オンライン / 渋谷区〇〇">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">参加費</label>
+                    <input type="text" class="form-input" id="editEventPrice" placeholder="例: 無料 / 1000円">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">定員</label>
+                    <input type="number" class="form-input" id="editEventCapacity" min="1" placeholder="例: 20">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditEventModal()">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">更新</button>
+                    <button type="button" class="btn" onclick="deleteEvent()" style="background: #dc3545; color: white;">削除</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let events = [];
+        let currentFilter = 'all';
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            generateNavigation();
+            loadEvents();
+            displayEvents();
+        });
+
+        // 現在のユーザー情報を取得
+        function loadCurrentUser() {
+            try {
+                const stored = localStorage.getItem('currentUser');
+                if (stored) {
+                    currentUser = JSON.parse(stored);
+                }
+            } catch (error) {
+                console.error('ユーザー情報取得エラー:', error);
+            }
+        }
+
+        // ナビゲーションを動的に生成
+        function generateNavigation() {
+            const navHeader = document.getElementById('navHeader');
+            
+            if (currentUser) {
+                // ログイン中のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link current">📅 イベント</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                    <span class="nav-link" style="background: rgba(255,255,255,0.1); cursor: default;">👋 ${currentUser.name || 'ユーザー'}</span>
+                    <a href="#" class="nav-link" onclick="logout()" style="background: rgba(255,69,58,0.8);">🚪 ログアウト</a>
+                `;
+            } else {
+                // 未ログイン時のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link current">📅 イベント</a>
+                    <a href="login.html" class="nav-link">🔐 ログイン</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                `;
+            }
+        }
+
+        // ログアウト機能
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // イベントデータを読み込み
+        function loadEvents() {
+            const stored = localStorage.getItem('communityEvents');
+            if (stored) {
+                events = JSON.parse(stored);
+            } else {
+                // デフォルトのサンプルイベント
+                events = [
+                    {
+                        id: 'event005',
+                        title: '8時だよ全員集合朝会',
+                        description: '毎日の朝のミーティングです。今日の予定や目標を共有しましょう。',
+                        date: '2025-09-04T08:00:00',
+                        location: 'オンライン（Zoom）',
+                        price: '無料',
+                        capacity: 50,
+                        participants: [],
+                        checkedInUsers: [],
+                        createdBy: 'admin@example.com',
+                        createdAt: '2025-09-04T07:00:00',
+                        category: 'meeting'
+                    }
+                ];
+                saveEvents();
+            }
+        }
+
+        // イベントデータを保存
+        function saveEvents() {
+            localStorage.setItem('communityEvents', JSON.stringify(events));
+        }
+
+        // イベントを表示
+        function displayEvents() {
+            const eventsGrid = document.getElementById('eventsGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            // フィルタリング
+            let filteredEvents = events;
+            const now = new Date();
+            
+            switch(currentFilter) {
+                case 'upcoming':
+                    filteredEvents = events.filter(event => new Date(event.date) > now);
+                    break;
+                case 'ongoing':
+                    filteredEvents = events.filter(event => {
+                        const eventDate = new Date(event.date);
+                        const endDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000); // 3時間後
+                        return now >= eventDate && now <= endDate;
+                    });
+                    break;
+                case 'ended':
+                    filteredEvents = events.filter(event => {
+                        const eventDate = new Date(event.date);
+                        const endDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000);
+                        return now > endDate;
+                    });
+                    break;
+            }
+
+            if (filteredEvents.length === 0) {
+                eventsGrid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            eventsGrid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            eventsGrid.innerHTML = filteredEvents.map(event => createEventCard(event)).join('');
+        }
+
+        // イベントカードを作成
+        function createEventCard(event) {
+            const now = new Date();
+            const eventDate = new Date(event.date);
+            const endDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000);
+            
+            let status, statusClass;
+            if (now > endDate) {
+                status = '終了';
+                statusClass = 'ended';
+            } else if (now >= eventDate && now <= endDate) {
+                status = '開催中';
+                statusClass = 'ongoing';
+            } else {
+                status = '開催予定';
+                statusClass = 'upcoming';
+            }
+
+            const isParticipant = currentUser && event.participants.includes(currentUser.email);
+            const isCheckedIn = currentUser && event.checkedInUsers && event.checkedInUsers.includes(currentUser.email);
+            const participantCount = event.participants.length;
+            const checkedInCount = event.checkedInUsers ? event.checkedInUsers.length : 0;
+            
+            // チェックイン可能時間（イベント開始30分前から終了まで）
+            const canCheckIn = isParticipant && now >= new Date(eventDate.getTime() - 30 * 60 * 1000) && now <= endDate;
+
+            return `
+                <div class="event-card" onclick="viewEvent('${event.id}')">
+                    <div class="event-status ${statusClass}">${status}</div>
+                    
+                    <div class="event-date">
+                        📅 ${formatDate(eventDate)}
+                    </div>
+                    
+                    <h3 class="event-title">${event.title}</h3>
+                    <p class="event-description">${event.description}</p>
+                    
+                    <div class="event-details">
+                        <div class="event-detail">
+                            📍 ${event.location}
+                        </div>
+                        <div class="event-detail">
+                            💰 ${event.price}
+                        </div>
+                        <div class="event-detail">
+                            👥 定員: ${event.capacity}名（参加: ${participantCount}名）
+                        </div>
+                        <div class="event-detail">
+                            ✅ チェックイン: ${checkedInCount}名
+                        </div>
+                    </div>
+                    
+                    <div class="event-participants">
+                        <div class="participant-avatars">
+                            ${event.participants.slice(0, 3).map((email, index) => {
+                                const checkedIn = event.checkedInUsers && event.checkedInUsers.includes(email);
+                                const profile = getParticipantProfile(email);
+                                const profileImage = getParticipantImage(email);
+                                const name = profile ? profile.name : email.split('@')[0];
+                                const profileId = profile ? profile.id : null;
+                                const clickHandler = profileId ? `onclick="event.stopPropagation(); window.open('profile-view.html?id=${profileId}', '_blank')"` : '';
+                                
+                                if (profileImage) {
+                                    return `<img src="${profileImage}" class="participant-avatar" alt="${name}" ${clickHandler} style="z-index: ${3-index}; ${checkedIn ? 'border: 3px solid #28a745;' : ''} ${profileId ? 'cursor: pointer;' : ''}" title="${name}">`;
+                                } else {
+                                    const hash = email.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+                                    const hue = Math.abs(hash) % 360;
+                                    return `<div class="participant-avatar" ${clickHandler} style="background: linear-gradient(135deg, hsl(${hue}, 60%, 70%), hsl(${hue + 30}, 60%, 60%)); z-index: ${3-index}; ${checkedIn ? 'border: 3px solid #28a745;' : ''} ${profileId ? 'cursor: pointer;' : ''}" title="${name}">${name.charAt(0).toUpperCase()}</div>`;
+                                }
+                            }).join('')}
+                        </div>
+                        <div style="display: flex; flex-direction: column; flex: 1;">
+                            <span class="participant-count">${participantCount}名参加予定</span>
+                            ${isParticipant && isCheckedIn ? '<div class="attendance-status"><span class="checked-in-badge">✅ チェックイン済み</span></div>' : ''}
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <button class="join-btn ${isParticipant ? 'joined' : ''}" onclick="event.stopPropagation(); toggleParticipation('${event.id}')" ${!currentUser ? 'style="display:none;"' : ''}>
+                                ${isParticipant ? '参加済み' : '参加する'}
+                            </button>
+                            ${canCheckIn && !isCheckedIn ? `<button class="checkin-btn" onclick="event.stopPropagation(); checkInToEvent('${event.id}')">チェックイン</button>` : ''}
+                            ${currentUser && event.createdBy === currentUser.email ? `<button class="edit-btn" onclick="event.stopPropagation(); openEditEventModal('${event.id}')">編集</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 日時のフォーマット
+        function formatDate(date) {
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                weekday: 'short'
+            };
+            return date.toLocaleDateString('ja-JP', options);
+        }
+
+        // フィルターイベント
+        function filterEvents(filter) {
+            currentFilter = filter;
+            
+            // ボタンの状態を更新
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayEvents();
+        }
+
+        // イベント参加/離脱
+        function toggleParticipation(eventId) {
+            if (!currentUser) {
+                alert('参加するにはログインが必要です');
+                return;
+            }
+
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+
+            const participantIndex = event.participants.indexOf(currentUser.email);
+            
+            if (participantIndex === -1) {
+                // 参加
+                if (event.participants.length >= event.capacity) {
+                    alert('定員に達しているため参加できません');
+                    return;
+                }
+                event.participants.push(currentUser.email);
+                showNotification('イベントに参加しました！');
+            } else {
+                // 離脱
+                event.participants.splice(participantIndex, 1);
+                showNotification('イベントの参加をキャンセルしました');
+            }
+            
+            saveEvents();
+            displayEvents();
+        }
+
+        // チェックイン機能
+        function checkInToEvent(eventId) {
+            if (!currentUser) {
+                alert('チェックインにはログインが必要です');
+                return;
+            }
+
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+
+            // 参加者チェック
+            if (!event.participants.includes(currentUser.email)) {
+                alert('このイベントに参加登録していません');
+                return;
+            }
+
+            // 既にチェックイン済みかチェック
+            if (!event.checkedInUsers) {
+                event.checkedInUsers = [];
+            }
+            
+            if (event.checkedInUsers.includes(currentUser.email)) {
+                alert('既にチェックイン済みです');
+                return;
+            }
+
+            // チェックイン可能時間チェック
+            const now = new Date();
+            const eventDate = new Date(event.date);
+            const endDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000);
+            const canCheckIn = now >= new Date(eventDate.getTime() - 30 * 60 * 1000) && now <= endDate;
+
+            if (!canCheckIn) {
+                alert('チェックインできる時間ではありません\n（イベント開始30分前〜終了まで）');
+                return;
+            }
+
+            // チェックイン実行
+            event.checkedInUsers.push(currentUser.email);
+            saveEvents();
+            displayEvents();
+            
+            showNotification(`✅ ${event.title} にチェックインしました！`);
+        }
+
+        // イベント詳細を表示
+        function viewEvent(eventId) {
+            window.location.href = `event-detail.html?id=${eventId}`;
+        }
+
+        // Create Event Modal
+        function openCreateEventModal() {
+            if (!currentUser) {
+                alert('イベント作成にはログインが必要です');
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('createEventModal').style.display = 'flex';
+        }
+
+        function closeCreateEventModal() {
+            document.getElementById('createEventModal').style.display = 'none';
+            document.getElementById('createEventForm').reset();
+        }
+
+        // イベント作成フォームの処理
+        document.getElementById('createEventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                alert('ログインが必要です');
+                return;
+            }
+
+            const newEvent = {
+                id: 'event' + Date.now(),
+                title: document.getElementById('eventTitle').value,
+                description: document.getElementById('eventDescription').value,
+                date: document.getElementById('eventDateTime').value,
+                location: document.getElementById('eventLocation').value,
+                price: document.getElementById('eventPrice').value || '無料',
+                capacity: parseInt(document.getElementById('eventCapacity').value) || 10,
+                participants: [],
+                checkedInUsers: [],
+                createdBy: currentUser.email,
+                createdAt: new Date().toISOString(),
+                category: 'other'
+            };
+
+            events.unshift(newEvent); // 新しいイベントを先頭に追加
+            saveEvents();
+            displayEvents();
+            closeCreateEventModal();
+            
+            showNotification('イベントが作成されました！');
+        });
+
+        // 参加者のプロフィール情報を取得
+        function getParticipantProfile(email) {
+            if (window.profileGenerator) {
+                const allProfiles = window.profileGenerator.getAllProfiles();
+                return allProfiles.find(profile => 
+                    profile.createdBy === email || profile.email === email
+                ) || null;
+            }
+            return null;
+        }
+
+        function getParticipantImage(email) {
+            const profile = getParticipantProfile(email);
+            if (profile && profile.image) {
+                return profile.image;
+            }
+            // フォールバック用の色生成
+            const hash = email.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            const hue = Math.abs(hash) % 360;
+            return null; // 画像がない場合はnullを返す
+        }
+
+        // 通知を表示
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        let editingEventId = null;
+
+        // イベント編集モーダルを開く
+        function openEditEventModal(eventId) {
+            if (!currentUser) {
+                alert('イベント編集にはログインが必要です');
+                return;
+            }
+
+            const event = events.find(e => e.id === eventId);
+            if (!event) {
+                alert('イベントが見つかりません');
+                return;
+            }
+
+            // 編集権限チェック
+            if (event.createdBy !== currentUser.email) {
+                alert('このイベントを編集する権限がありません');
+                return;
+            }
+
+            editingEventId = eventId;
+            
+            // フォームに現在の値を設定
+            document.getElementById('editEventTitle').value = event.title;
+            document.getElementById('editEventDescription').value = event.description || '';
+            document.getElementById('editEventDateTime').value = event.date.slice(0, 16); // ISO format to datetime-local
+            document.getElementById('editEventLocation').value = event.location || '';
+            document.getElementById('editEventPrice').value = event.price || '';
+            document.getElementById('editEventCapacity').value = event.capacity || '';
+            
+            document.getElementById('editEventModal').style.display = 'flex';
+        }
+
+        function closeEditEventModal() {
+            document.getElementById('editEventModal').style.display = 'none';
+            document.getElementById('editEventForm').reset();
+            editingEventId = null;
+        }
+
+        // イベント編集フォームの処理
+        document.getElementById('editEventForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentUser || !editingEventId) {
+                alert('ログインが必要です');
+                return;
+            }
+
+            const eventIndex = events.findIndex(e => e.id === editingEventId);
+            if (eventIndex === -1) {
+                alert('イベントが見つかりません');
+                return;
+            }
+
+            // 更新されたイベントデータ
+            const updatedEvent = {
+                ...events[eventIndex],
+                title: document.getElementById('editEventTitle').value,
+                description: document.getElementById('editEventDescription').value,
+                date: document.getElementById('editEventDateTime').value,
+                location: document.getElementById('editEventLocation').value,
+                price: document.getElementById('editEventPrice').value || '無料',
+                capacity: parseInt(document.getElementById('editEventCapacity').value) || events[eventIndex].capacity,
+                updatedAt: new Date().toISOString()
+            };
+
+            events[eventIndex] = updatedEvent;
+            saveEvents();
+            displayEvents();
+            closeEditEventModal();
+            
+            showNotification('イベントが更新されました！');
+        });
+
+        // イベント削除機能
+        function deleteEvent() {
+            if (!editingEventId) return;
+
+            const event = events.find(e => e.id === editingEventId);
+            if (!event) return;
+
+            if (confirm(`「${event.title}」を削除しますか？\n\n参加者がいる場合、その情報も失われます。`)) {
+                events = events.filter(e => e.id !== editingEventId);
+                saveEvents();
+                displayEvents();
+                closeEditEventModal();
+                
+                showNotification('イベントが削除されました', 'success');
+            }
+        }
+
+        // モーダル外クリックで閉じる
+        document.getElementById('createEventModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateEventModal();
+            }
+        });
+
+        document.getElementById('editEventModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditEventModal();
+            }
+        });
+    </script>
+</body>
+</html>

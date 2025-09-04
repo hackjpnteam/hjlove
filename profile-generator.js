@@ -51,18 +51,64 @@ class ProfileGenerator {
         const locationDisplay = location ? ` • ${location}` : '';
         const occupationFull = `${occupation}${ageDisplay}${locationDisplay}`;
 
-        // スキルカードを生成
+        // スキル名に基づいてアイコンを選択する関数
+        function getSkillIcon(skill) {
+            const skillLower = skill.toLowerCase();
+            if (skillLower.includes('ai') || skillLower.includes('人工知能') || skillLower.includes('機械学習')) return '🤖';
+            if (skillLower.includes('エンジニア') || skillLower.includes('プログラム') || skillLower.includes('コード') || skillLower.includes('開発')) return '👨‍💻';
+            if (skillLower.includes('投資') || skillLower.includes('株') || skillLower.includes('金融') || skillLower.includes('finance')) return '📈';
+            if (skillLower.includes('シリコンバレー') || skillLower.includes('テック') || skillLower.includes('スタートアップ')) return '🏙️';
+            if (skillLower.includes('ポケモン') || skillLower.includes('ゲーム') || skillLower.includes('アニメ')) return '⚡';
+            if (skillLower.includes('散歩') || skillLower.includes('ウォーキング') || skillLower.includes('運動')) return '🚶‍♂️';
+            if (skillLower.includes('デザイン') || skillLower.includes('ui') || skillLower.includes('ux')) return '🎨';
+            if (skillLower.includes('マーケティング') || skillLower.includes('営業') || skillLower.includes('sales')) return '📊';
+            if (skillLower.includes('写真') || skillLower.includes('photo') || skillLower.includes('カメラ')) return '📷';
+            if (skillLower.includes('音楽') || skillLower.includes('music') || skillLower.includes('楽器')) return '🎵';
+            if (skillLower.includes('料理') || skillLower.includes('cooking') || skillLower.includes('食')) return '👨‍🍳';
+            if (skillLower.includes('教育') || skillLower.includes('教師') || skillLower.includes('研修')) return '📚';
+            if (skillLower.includes('言語') || skillLower.includes('英語') || skillLower.includes('翻訳')) return '🗣️';
+            if (skillLower.includes('管理') || skillLower.includes('マネジメント') || skillLower.includes('リーダー')) return '👑';
+            if (skillLower.includes('健康') || skillLower.includes('医療') || skillLower.includes('ヘルス')) return '⚕️';
+            return '💡'; // デフォルト
+        }
+
+        // スキルハッシュタグを生成
         const skillCards = skills && skills.length > 0 ? skills.map(skill => `
-            <div class="about-card">
-                <div class="about-icon">💡</div>
-                <h3>${skill}</h3>
-                <p>専門スキルとして習得</p>
-            </div>
+            <span class="about-card">#${skill}</span>
         `).join('') : '';
 
         // バイオグラフィーを段落に分割
         const bioSentences = bio.split(/[。．！？\n]/).filter(s => s.trim().length > 0);
         const bioParagraphs = bioSentences.map(sentence => `<p class="bio-text">${sentence.trim()}。</p>`).join('');
+
+        // ソーシャルリンクを生成（入力されている場合のみ）
+        const socialLinks = [];
+        if (email) socialLinks.push(`<a href="mailto:${email}" class="contact-link"><span class="contact-icon">📧</span>メール</a>`);
+        if (facebook) socialLinks.push(`<a href="${facebook}" target="_blank" class="contact-link"><span class="contact-icon">📘</span>Facebook</a>`);
+        if (instagram) socialLinks.push(`<a href="https://instagram.com/${instagram.replace('@', '')}" target="_blank" class="contact-link"><span class="contact-icon">📷</span>Instagram</a>`);
+        const socialLinksHTML = socialLinks.join('');
+
+        // 「こんな人に会いたい」セクション
+        const wantToMeetSection = wantToMeet ? `
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">こんな人に会いたい</h2>
+            <div class="content-card">
+                <p class="content-text">${wantToMeet}</p>
+            </div>
+        </div>
+    </section>` : '';
+
+        // 「ギブできること」セクション
+        const canGiveSection = canGive ? `
+    <section class="section section-alt">
+        <div class="container">
+            <h2 class="section-title">ギブできること</h2>
+            <div class="content-card">
+                <p class="content-text">${canGive}</p>
+            </div>
+        </div>
+    </section>` : '';
 
         return `<!DOCTYPE html>
 <html lang="ja">
@@ -263,40 +309,43 @@ class ProfileGenerator {
         }
 
         .about-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
             margin-bottom: 4rem;
+            justify-content: center;
         }
 
         .about-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .content-card {
             background: white;
             padding: 2rem;
             border-radius: 16px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            text-align: center;
+            border-left: 4px solid var(--primary);
         }
 
-        .about-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .about-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .about-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .about-card p {
+        .content-text {
             color: var(--text-secondary);
-            line-height: 1.6;
+            line-height: 1.8;
+            font-size: 1.1rem;
         }
 
         .bio-section {
@@ -437,13 +486,7 @@ class ProfileGenerator {
         <div class="container">
             <h2 class="section-title">私について</h2>
             <div class="about-grid">
-                ${skillCards || `
-                <div class="about-card">
-                    <div class="about-icon">👤</div>
-                    <h3>プロフェッショナル</h3>
-                    <p>${occupation}として活動しています。</p>
-                </div>
-                `}
+                ${skillCards || `<span class="about-card">#${occupation}</span>`}
             </div>
             <div class="bio-section">
                 <h3 class="bio-title">プロフィール</h3>
@@ -452,6 +495,9 @@ class ProfileGenerator {
         </div>
     </section>
 
+    ${wantToMeetSection}
+    ${canGiveSection}
+    ${socialLinksHTML ? `
     <section id="contact" class="section section-alt">
         <div class="container">
             <h2 class="section-title">お問い合わせ</h2>
@@ -461,11 +507,11 @@ class ProfileGenerator {
                     お返事をお待ちしております。
                 </p>
                 <div class="contact-links">
-                    <a href="#" class="contact-link">
-                        <span class="contact-icon">📧</span>
-                        メール
-                    </a>
-                    <a href="#" class="contact-link">
+                    ${socialLinksHTML}
+                </div>
+            </div>
+        </div>
+    </section>` : ''}
                         <span class="contact-icon">💼</span>
                         LinkedIn
                     </a>
@@ -525,8 +571,25 @@ class ProfileGenerator {
         const currentUser = this.getCurrentUser();
         if (!currentUser) return false;
         
-        // プロフィールの作成者か、またはtomura@hackjpn.comアカウントの場合は編集可能
-        return profile.createdBy === currentUser.email || currentUser.email === 'tomura@hackjpn.com';
+        // 1. プロフィールの作成者
+        // 2. tomura@hackjpn.comアカウント  
+        // 3. プロフィール対象者を招待した人
+        if (profile.createdBy === currentUser.email || currentUser.email === 'tomura@hackjpn.com') {
+            return true;
+        }
+        
+        // 招待者チェック：現在のユーザーが、このプロフィールの対象者を招待したか
+        try {
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            const profileTargetUser = users[profile.createdBy];
+            if (profileTargetUser && profileTargetUser.invitedBy === currentUser.email) {
+                return true;
+            }
+        } catch (error) {
+            console.error('招待者権限チェックエラー:', error);
+        }
+        
+        return false;
     }
 
     // プロフィールを更新

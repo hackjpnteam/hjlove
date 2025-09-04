@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>イベント詳細</title>
+    <script src="placeholder-generator.js"></script>
+    <script src="profile-generator.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .nav-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            display: inline-block;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .nav-link:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+        .nav-link.current {
+            background: rgba(255,255,255,0.4);
+            color: #fff;
+        }
+        .back-link {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .back-link:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        .event-detail-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .event-detail-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .event-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .event-title {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .event-status {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .event-status.upcoming {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .event-status.ongoing {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .event-status.ended {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        .event-date {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .event-info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .event-description {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+        .description-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .description-text {
+            color: #666;
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+        .event-details {
+            background: #fff;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        .details-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        .detail-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+        .detail-content {
+            flex: 1;
+        }
+        .detail-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        .detail-value {
+            font-weight: 500;
+            color: #333;
+        }
+        .participants-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .participants-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .participants-stats {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 25px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #f0f0f0;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        .participants-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .participant-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .participant-item.checked-in {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        .participant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            border: 2px solid #f0f0f0;
+        }
+        .participant-info {
+            flex: 1;
+        }
+        .participant-name {
+            font-weight: 500;
+            color: #333;
+        }
+        .participant-status {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .checkin-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .organizer-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .organizer-title {
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .organizer-name {
+            color: #333;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .event-info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .participants-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header" id="navHeader">
+            <!-- ナビゲーションが動的に生成されます -->
+        </div>
+
+        <a href="events.html" class="back-link">
+            ← イベント一覧に戻る
+        </a>
+
+        <div class="event-detail-container">
+            <div class="event-header">
+                <h1 class="event-title" id="eventTitle">イベントタイトル</h1>
+                <div class="event-status" id="eventStatus">開催予定</div>
+                <div class="event-date" id="eventDate">📅 2025年9月10日（火）19:00</div>
+            </div>
+
+            <div class="event-info-grid">
+                <div class="event-description">
+                    <h3 class="description-title">📝 イベント詳細</h3>
+                    <p class="description-text" id="eventDescription">
+                        イベントの詳細情報がここに表示されます。
+                    </p>
+                </div>
+
+                <div class="event-details">
+                    <h3 class="details-title">📋 開催情報</h3>
+                    <div class="detail-item">
+                        <span class="detail-icon">📍</span>
+                        <div class="detail-content">
+                            <div class="detail-label">開催場所</div>
+                            <div class="detail-value" id="eventLocation">場所情報</div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-icon">💰</span>
+                        <div class="detail-content">
+                            <div class="detail-label">参加費</div>
+                            <div class="detail-value" id="eventPrice">参加費情報</div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-icon">👥</span>
+                        <div class="detail-content">
+                            <div class="detail-label">定員</div>
+                            <div class="detail-value" id="eventCapacity">定員情報</div>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-icon">📅</span>
+                        <div class="detail-content">
+                            <div class="detail-label">作成日</div>
+                            <div class="detail-value" id="eventCreated">作成日情報</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="participants-section">
+                <h3 class="participants-title">
+                    👥 参加者情報
+                    <span id="participationInfo" style="font-size: 0.9rem; color: #666;"></span>
+                </h3>
+                
+                <div class="participants-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="participantCount">0</div>
+                        <div class="stat-label">参加予定</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="checkedInCount">0</div>
+                        <div class="stat-label">チェックイン済み</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="availableSlots">0</div>
+                        <div class="stat-label">空き</div>
+                    </div>
+                </div>
+
+                <div class="participants-list" id="participantsList">
+                    <!-- 参加者一覧がここに表示されます -->
+                </div>
+            </div>
+
+            <div class="organizer-info">
+                <div class="organizer-title">主催者</div>
+                <div class="organizer-name" id="organizerName">主催者情報</div>
+            </div>
+
+            <div class="action-buttons" id="actionButtons">
+                <!-- アクションボタンがここに表示されます -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let currentEvent = null;
+        let events = [];
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            generateNavigation();
+            loadEventDetail();
+        });
+
+        // 現在のユーザー情報を取得
+        function loadCurrentUser() {
+            try {
+                const stored = localStorage.getItem('currentUser');
+                if (stored) {
+                    currentUser = JSON.parse(stored);
+                }
+            } catch (error) {
+                console.error('ユーザー情報取得エラー:', error);
+            }
+        }
+
+        // ナビゲーションを動的に生成
+        function generateNavigation() {
+            const navHeader = document.getElementById('navHeader');
+            
+            if (currentUser) {
+                // ログイン中のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link">📅 イベント</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                    <span class="nav-link" style="background: rgba(255,255,255,0.1); cursor: default;">👋 ${currentUser.name || 'ユーザー'}</span>
+                    <a href="#" class="nav-link" onclick="logout()" style="background: rgba(255,69,58,0.8);">🚪 ログアウト</a>
+                `;
+            } else {
+                // 未ログイン時のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="events.html" class="nav-link">📅 イベント</a>
+                    <a href="login.html" class="nav-link">🔐 ログイン</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                `;
+            }
+        }
+
+        // ログアウト機能
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // イベント詳細を読み込み
+        function loadEventDetail() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+            
+            if (!eventId) {
+                alert('イベントIDが指定されていません');
+                window.location.href = 'events.html';
+                return;
+            }
+
+            // イベントデータを読み込み
+            const stored = localStorage.getItem('communityEvents');
+            if (stored) {
+                events = JSON.parse(stored);
+            }
+
+            currentEvent = events.find(e => e.id === eventId);
+            
+            if (!currentEvent) {
+                alert('イベントが見つかりません');
+                window.location.href = 'events.html';
+                return;
+            }
+
+            displayEventDetail();
+        }
+
+        // イベント詳細を表示
+        function displayEventDetail() {
+            const event = currentEvent;
+            const now = new Date();
+            const eventDate = new Date(event.date);
+            const endDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000);
+            
+            // ステータスを判定
+            let status, statusClass;
+            if (now > endDate) {
+                status = '終了';
+                statusClass = 'ended';
+            } else if (now >= eventDate && now <= endDate) {
+                status = '開催中';
+                statusClass = 'ongoing';
+            } else {
+                status = '開催予定';
+                statusClass = 'upcoming';
+            }
+
+            // 基本情報を表示
+            document.getElementById('eventTitle').textContent = event.title;
+            document.getElementById('eventStatus').textContent = status;
+            document.getElementById('eventStatus').className = `event-status ${statusClass}`;
+            document.getElementById('eventDate').textContent = `📅 ${formatDate(eventDate)}`;
+            document.getElementById('eventDescription').textContent = event.description || '詳細情報はありません';
+            document.getElementById('eventLocation').textContent = event.location;
+            document.getElementById('eventPrice').textContent = event.price;
+            document.getElementById('eventCapacity').textContent = `${event.capacity}名`;
+            document.getElementById('eventCreated').textContent = formatDate(new Date(event.createdAt));
+            document.getElementById('organizerName').textContent = getOrganizerName(event.createdBy);
+
+            // 参加者情報を表示
+            displayParticipants(event);
+            
+            // アクションボタンを表示
+            displayActionButtons(event, status, eventDate, endDate);
+        }
+
+        // 参加者情報を表示
+        function displayParticipants(event) {
+            const participantCount = event.participants.length;
+            const checkedInCount = event.checkedInUsers ? event.checkedInUsers.length : 0;
+            const availableSlots = event.capacity - participantCount;
+
+            document.getElementById('participantCount').textContent = participantCount;
+            document.getElementById('checkedInCount').textContent = checkedInCount;
+            document.getElementById('availableSlots').textContent = Math.max(0, availableSlots);
+
+            const participationInfo = document.getElementById('participationInfo');
+            if (currentUser && event.participants.includes(currentUser.email)) {
+                const checkedIn = event.checkedInUsers && event.checkedInUsers.includes(currentUser.email);
+                participationInfo.textContent = checkedIn ? '（あなたはチェックイン済みです）' : '（あなたは参加予定です）';
+                participationInfo.style.color = checkedIn ? '#28a745' : '#667eea';
+            } else {
+                participationInfo.textContent = '';
+            }
+
+            // 参加者リストを表示
+            const participantsList = document.getElementById('participantsList');
+            if (participantCount === 0) {
+                participantsList.innerHTML = '<div style="text-align: center; color: #666; grid-column: 1/-1;">まだ参加者がいません</div>';
+                return;
+            }
+
+            participantsList.innerHTML = event.participants.map(email => {
+                const name = getParticipantName(email);
+                const checkedIn = event.checkedInUsers && event.checkedInUsers.includes(email);
+                const profile = getParticipantProfile(email);
+                const profileImage = getParticipantImage(email);
+                const profileId = profile ? profile.id : null;
+                
+                const clickHandler = profileId ? `onclick="window.open('profile-view.html?id=${profileId}', '_blank')"` : '';
+                const clickableStyle = profileId ? 'cursor: pointer;' : '';
+                
+                return `
+                    <div class="participant-item ${checkedIn ? 'checked-in' : ''}" ${clickHandler} style="${clickableStyle}">
+                        <img src="${profileImage}" class="participant-avatar" alt="${name}" 
+                             onerror="this.style.background='${generateAvatarColor(email)}'; this.innerHTML='${name.charAt(0).toUpperCase()}'; this.style.display='flex'; this.style.alignItems='center'; this.style.justifyContent='center'; this.style.color='white'; this.style.fontWeight='600';">
+                        <div class="participant-info">
+                            <div class="participant-name" style="${profileId ? 'color: #667eea; cursor: pointer;' : ''}">${profile ? profile.name : name}</div>
+                            <div class="participant-status">
+                                ${checkedIn ? '<span class="checkin-badge">✅ チェックイン済み</span>' : '参加予定'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // アクションボタンを表示
+        function displayActionButtons(event, status, eventDate, endDate) {
+            const actionButtons = document.getElementById('actionButtons');
+            const now = new Date();
+            
+            if (!currentUser) {
+                actionButtons.innerHTML = `
+                    <a href="login.html" class="btn btn-primary">ログインして参加</a>
+                `;
+                return;
+            }
+
+            const isParticipant = event.participants.includes(currentUser.email);
+            const isCheckedIn = event.checkedInUsers && event.checkedInUsers.includes(currentUser.email);
+            const isOrganizer = event.createdBy === currentUser.email;
+            const canCheckIn = isParticipant && now >= new Date(eventDate.getTime() - 30 * 60 * 1000) && now <= endDate;
+            const isFull = event.participants.length >= event.capacity;
+
+            let buttons = [];
+
+            if (isOrganizer) {
+                buttons.push(`<button class="btn btn-secondary" onclick="editEvent()">✏️ イベント編集</button>`);
+            }
+
+            if (!isParticipant && !isFull && status !== '終了') {
+                buttons.push(`<button class="btn btn-primary" onclick="joinEvent()">参加する</button>`);
+            } else if (!isParticipant && isFull) {
+                buttons.push(`<button class="btn btn-secondary" disabled>定員に達しています</button>`);
+            } else if (isParticipant && status !== '終了') {
+                buttons.push(`<button class="btn btn-secondary" onclick="leaveEvent()">参加をキャンセル</button>`);
+            }
+
+            if (canCheckIn && !isCheckedIn) {
+                buttons.push(`<button class="btn btn-success" onclick="checkInToEvent()">✅ チェックイン</button>`);
+            } else if (isCheckedIn) {
+                buttons.push(`<button class="btn btn-info" disabled>✅ チェックイン済み</button>`);
+            }
+
+            actionButtons.innerHTML = buttons.join('');
+        }
+
+        // ユーティリティ関数
+        function formatDate(date) {
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                hour: '2-digit', 
+                minute: '2-digit',
+                weekday: 'short'
+            };
+            return date.toLocaleDateString('ja-JP', options);
+        }
+
+        function getOrganizerName(email) {
+            return email.split('@')[0] + 'さん';
+        }
+
+        function getParticipantName(email) {
+            return email.split('@')[0];
+        }
+
+        function getParticipantProfile(email) {
+            // プロフィールデータから該当する人を検索
+            if (window.profileGenerator) {
+                const allProfiles = window.profileGenerator.getAllProfiles();
+                return allProfiles.find(profile => 
+                    profile.createdBy === email || profile.email === email
+                ) || null;
+            }
+            return null;
+        }
+
+        function getParticipantImage(email) {
+            const profile = getParticipantProfile(email);
+            if (profile && profile.image) {
+                return profile.image;
+            }
+            // フォールバック：デフォルト画像
+            const initial = getParticipantName(email).charAt(0).toUpperCase();
+            const avatarColor = generateAvatarColor(email);
+            if (window.generatePlaceholder) {
+                return generatePlaceholder(40, 40, avatarColor.split('(')[1].split(',')[0].replace('hsl', '').replace('(', ''), 'ffffff', initial);
+            }
+            return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="${avatarColor}"/><text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">${initial}</text></svg>`;
+        }
+
+        function generateAvatarColor(email) {
+            const hash = email.split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+            const hue = Math.abs(hash) % 360;
+            return `hsl(${hue}, 60%, 70%)`;
+        }
+
+        // イベント参加
+        function joinEvent() {
+            if (!currentUser) {
+                alert('参加するにはログインが必要です');
+                return;
+            }
+
+            if (currentEvent.participants.length >= currentEvent.capacity) {
+                alert('定員に達しているため参加できません');
+                return;
+            }
+
+            currentEvent.participants.push(currentUser.email);
+            updateEventData();
+            displayEventDetail();
+            showNotification('イベントに参加しました！');
+        }
+
+        // イベント離脱
+        function leaveEvent() {
+            if (!currentUser) return;
+
+            if (confirm('このイベントの参加をキャンセルしますか？')) {
+                // 参加者リストから削除
+                const participantIndex = currentEvent.participants.indexOf(currentUser.email);
+                if (participantIndex !== -1) {
+                    currentEvent.participants.splice(participantIndex, 1);
+                }
+
+                // チェックインリストからも削除
+                if (currentEvent.checkedInUsers) {
+                    const checkinIndex = currentEvent.checkedInUsers.indexOf(currentUser.email);
+                    if (checkinIndex !== -1) {
+                        currentEvent.checkedInUsers.splice(checkinIndex, 1);
+                    }
+                }
+
+                updateEventData();
+                displayEventDetail();
+                showNotification('参加をキャンセルしました');
+            }
+        }
+
+        // チェックイン
+        function checkInToEvent() {
+            if (!currentUser || !currentEvent.participants.includes(currentUser.email)) {
+                alert('このイベントに参加登録していません');
+                return;
+            }
+
+            if (!currentEvent.checkedInUsers) {
+                currentEvent.checkedInUsers = [];
+            }
+
+            if (currentEvent.checkedInUsers.includes(currentUser.email)) {
+                alert('既にチェックイン済みです');
+                return;
+            }
+
+            const now = new Date();
+            const eventDate = new Date(currentEvent.date);
+            const endDate = new Date(eventDate.getTime() + 3 * 60 * 60 * 1000);
+            const canCheckIn = now >= new Date(eventDate.getTime() - 30 * 60 * 1000) && now <= endDate;
+
+            if (!canCheckIn) {
+                alert('チェックインできる時間ではありません\n（イベント開始30分前〜終了まで）');
+                return;
+            }
+
+            currentEvent.checkedInUsers.push(currentUser.email);
+            updateEventData();
+            displayEventDetail();
+            showNotification(`✅ ${currentEvent.title} にチェックインしました！`);
+        }
+
+        // イベント編集（簡易版）
+        function editEvent() {
+            if (currentEvent.createdBy !== currentUser.email) {
+                alert('このイベントを編集する権限がありません');
+                return;
+            }
+            alert('イベント編集機能は今後実装予定です');
+        }
+
+        // イベントデータを更新
+        function updateEventData() {
+            const eventIndex = events.findIndex(e => e.id === currentEvent.id);
+            if (eventIndex !== -1) {
+                events[eventIndex] = currentEvent;
+                localStorage.setItem('communityEvents', JSON.stringify(events));
+            }
+        }
+
+        // 通知を表示
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#28a745' : '#dc3545'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -6,6 +6,8 @@
     <title>ログイン</title>
     <script src="placeholder-generator.js"></script>
     <script src="profile-generator.js"></script>
+    <!-- Google Sign-In Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -101,6 +103,50 @@
         .signup-container {
             display: none;
         }
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .divider span {
+            flex: 0 0 auto;
+            padding: 0 15px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        .google-signin-btn {
+            width: 100%;
+            background: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .google-signin-btn:hover {
+            background: #f8f8f8;
+            border-color: #4285f4;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
         .demo-users {
             background: #e9ecef;
             padding: 15px;
@@ -151,6 +197,26 @@
             <button type="submit" class="login-btn">ログイン</button>
         </form>
 
+        <div class="divider">
+            <span>または</span>
+        </div>
+
+        <!-- Google Sign-In Button Container -->
+        <div id="googleLoginButton" style="width: 100%; display: flex; justify-content: center; margin-bottom: 15px;">
+            <!-- Google button will be rendered here -->
+        </div>
+        
+        <!-- Fallback custom button -->
+        <button type="button" class="google-signin-btn" onclick="handleGoogleSignIn()" id="fallbackGoogleBtn" style="display: none;">
+            <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            Googleでログイン
+        </button>
+
         <div style="text-align: center; margin-top: 20px;">
             <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">アカウントをお持ちでない方は</p>
             <button type="button" class="signup-btn" onclick="showSignupForm()">新規登録</button>
@@ -190,6 +256,26 @@
             </div>
             <button type="submit" class="login-btn">登録</button>
         </form>
+
+        <div class="divider">
+            <span>または</span>
+        </div>
+
+        <!-- Google Sign-In Button for Signup Container -->
+        <div id="googleSignupButton" style="width: 100%; display: flex; justify-content: center; margin-bottom: 15px;">
+            <!-- Google signup button will be rendered here -->
+        </div>
+        
+        <!-- Fallback custom button -->
+        <button type="button" class="google-signin-btn" onclick="handleGoogleSignUp()" id="fallbackGoogleSignupBtn" style="display: none;">
+            <svg class="google-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            🎉 Googleアカウントで簡単登録
+        </button>
 
         <div style="text-align: center; margin-top: 20px;">
             <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">すでにアカウントをお持ちの方は</p>
@@ -332,6 +418,288 @@
             // プロフィール作成ページに移動
             window.location.href = 'profile-create.html';
         });
+
+        // Google Sign-In Configuration
+        const GOOGLE_CLIENT_ID = '770946554968-cf14im7fgm9ng8lmko4ltik2rns2udhb.apps.googleusercontent.com';
+
+        // Initialize Google Sign-In
+        window.onload = function() {
+            // Check if Google library is loaded
+            if (typeof google === 'undefined' || !google.accounts) {
+                console.error('Google Sign-In library not loaded');
+                return;
+            }
+            
+            try {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCallback,
+                    auto_select: false,
+                    cancel_on_tap_outside: true,
+                    use_fedcm_for_prompt: false // Disable FedCM for now
+                });
+                
+                // Render Google buttons on both login and signup forms
+                renderGoogleButtons();
+                console.log('Google Sign-In initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Google Sign-In:', error);
+                // Show fallback buttons
+                document.getElementById('fallbackGoogleBtn').style.display = 'block';
+                document.getElementById('fallbackGoogleSignupBtn').style.display = 'block';
+            }
+        };
+
+        // Handle Google Sign-In button click
+        function handleGoogleSignIn() {
+            // Check if Google library is loaded
+            if (typeof google === 'undefined' || !google.accounts) {
+                console.error('Google Sign-In library not loaded. Please refresh the page.');
+                alert('Google認証の準備ができていません。ページをリロードしてください。');
+                return;
+            }
+            
+            // Directly use the rendered button method instead of prompt
+            createGoogleButton();
+        }
+        
+        // Create Google Button method
+        function createGoogleButton() {
+            // Remove any existing Google button container
+            const existingContainer = document.getElementById('googleButtonContainer');
+            if (existingContainer) {
+                existingContainer.remove();
+            }
+            
+            // Create a modal overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'googleButtonContainer';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            
+            // Create modal content
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                text-align: center;
+            `;
+            
+            const title = document.createElement('h3');
+            title.textContent = 'Googleアカウントでログイン';
+            title.style.marginBottom = '20px';
+            modal.appendChild(title);
+            
+            const buttonDiv = document.createElement('div');
+            buttonDiv.id = 'googleSignInButtonReal';
+            modal.appendChild(buttonDiv);
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'キャンセル';
+            closeBtn.style.cssText = `
+                margin-top: 20px;
+                padding: 10px 20px;
+                background: #666;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            `;
+            closeBtn.onclick = () => overlay.remove();
+            modal.appendChild(closeBtn);
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Render the Google button
+            google.accounts.id.renderButton(
+                document.getElementById('googleSignInButtonReal'),
+                { 
+                    theme: 'outline', 
+                    size: 'large',
+                    type: 'standard',
+                    text: 'signin_with',
+                    shape: 'rectangular',
+                    logo_alignment: 'left',
+                    width: 250
+                }
+            );
+        }
+
+        // Render Google buttons
+        function renderGoogleButtons() {
+            try {
+                // Render login button
+                google.accounts.id.renderButton(
+                    document.getElementById('googleLoginButton'),
+                    {
+                        theme: 'outline',
+                        size: 'large',
+                        type: 'standard',
+                        text: 'signin_with',
+                        shape: 'rectangular',
+                        logo_alignment: 'left',
+                        width: 280
+                    }
+                );
+                
+                // Render signup button
+                google.accounts.id.renderButton(
+                    document.getElementById('googleSignupButton'),
+                    {
+                        theme: 'outline',
+                        size: 'large',
+                        type: 'standard',
+                        text: 'signup_with',
+                        shape: 'rectangular',
+                        logo_alignment: 'left',
+                        width: 280
+                    }
+                );
+            } catch (error) {
+                console.error('Error rendering Google buttons:', error);
+                // Show fallback buttons
+                document.getElementById('fallbackGoogleBtn').style.display = 'block';
+                document.getElementById('fallbackGoogleSignupBtn').style.display = 'block';
+            }
+        }
+
+        // Handle Google Sign-Up button click (same as sign-in but with different context)
+        function handleGoogleSignUp() {
+            // Set a flag to indicate this is a signup flow
+            localStorage.setItem('googleSignupFlow', 'true');
+            handleGoogleSignIn();
+        }
+
+        // Handle Google Sign-In callback
+        function handleGoogleCallback(response) {
+            // Decode the JWT token to get user information
+            const responsePayload = decodeJwtResponse(response.credential);
+            
+            const email = responsePayload.email;
+            const name = responsePayload.name;
+            const picture = responsePayload.picture;
+            const isNewUser = !users[email];
+            const isSignupFlow = localStorage.getItem('googleSignupFlow') === 'true';
+            
+            // 招待コードをチェック
+            const urlParams = new URLSearchParams(window.location.search);
+            const inviteCode = urlParams.get('invite');
+            let inviterEmail = null;
+            
+            if (inviteCode) {
+                inviterEmail = localStorage.getItem(`inviteCode_${inviteCode}`);
+            }
+            
+            // Clear the signup flow flag
+            localStorage.removeItem('googleSignupFlow');
+            
+            // Handle signup flow
+            if (isSignupFlow && !isNewUser) {
+                // User tried to sign up but account already exists
+                alert(`このGoogleアカウント（${email}）は既に登録されています。\n\nログインしますか？`);
+                // Continue with login process
+            }
+            
+            // Check if user already exists
+            if (isNewUser) {
+                // Register new user with Google account
+                users[email] = {
+                    password: 'google-oauth', // Placeholder for Google OAuth users
+                    name: name,
+                    role: 'user',
+                    picture: picture,
+                    authProvider: 'google',
+                    registeredAt: new Date().toISOString(),
+                    invitedBy: inviterEmail // 招待者情報を保存
+                };
+                saveUsers(users);
+                
+                // Show welcome message for new users
+                setTimeout(() => {
+                    const inviteMessage = inviterEmail ? 
+                        `\n\n👥 ${inviterEmail.split('@')[0]}さんからの招待で参加されました！` : '';
+                    alert(`🎉 Googleアカウントで新規登録が完了しました！\n\nようこそ、${name}さん！${inviteMessage}\n\nプロフィール作成ページに移動します。`);
+                }, 500);
+            } else {
+                // Update existing user's Google info if needed
+                if (!users[email].picture && picture) {
+                    users[email].picture = picture;
+                    users[email].authProvider = 'google';
+                    saveUsers(users);
+                }
+                
+                // Show login message for existing users (only if not from signup flow)
+                if (!isSignupFlow) {
+                    setTimeout(() => {
+                        alert(`おかえりなさい、${name}さん！`);
+                    }, 500);
+                }
+            }
+            
+            // Save current user information
+            const currentUser = {
+                email: email,
+                name: name,
+                role: users[email].role || 'user',
+                picture: picture,
+                authProvider: 'google'
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // Navigate based on user status
+            if (isNewUser) {
+                // New users go to profile creation
+                setTimeout(() => {
+                    window.location.href = 'profile-create.html';
+                }, 1500);
+            } else {
+                // Existing users check for profiles
+                if (window.profileGenerator) {
+                    const allProfiles = window.profileGenerator.getAllProfiles();
+                    const userProfiles = allProfiles.filter(profile => 
+                        profile.createdBy === currentUser.email
+                    );
+                    
+                    if (userProfiles.length > 0) {
+                        // Navigate to the latest profile
+                        const latestProfile = userProfiles.sort((a, b) => 
+                            new Date(b.createdAt) - new Date(a.createdAt)
+                        )[0];
+                        window.location.href = `profile-view.html?id=${latestProfile.id}`;
+                    } else {
+                        // Navigate to my page
+                        window.location.href = 'my-page.html';
+                    }
+                } else {
+                    // Navigate to my page if profileGenerator is not available
+                    window.location.href = 'my-page.html';
+                }
+            }
+        }
+
+        // Decode JWT token
+        function decodeJwtResponse(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
     </script>
 </body>
 </html>

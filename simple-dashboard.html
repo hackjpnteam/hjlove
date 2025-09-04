@@ -157,12 +157,8 @@
 </head>
 <body>
     <div class="container">
-        <div class="nav-header">
-            <a href="index.html" class="nav-link">🏠 ホーム</a>
-            <a href="timeline.html" class="nav-link">📈 タイムライン</a>
-            <a href="community.html" class="nav-link">👥 コミュニティ</a>
-            <a href="login.html" class="nav-link">🔐 ログイン</a>
-            <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+        <div class="nav-header" id="navHeader">
+            <!-- ナビゲーションが動的に生成されます -->
         </div>
         
         <div class="demo-notice">
@@ -179,6 +175,63 @@
     </div>
 
     <script>
+        let currentUser = null;
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            generateNavigation();
+        });
+
+        // 現在のユーザー情報を取得
+        function loadCurrentUser() {
+            try {
+                const stored = localStorage.getItem('currentUser');
+                if (stored) {
+                    currentUser = JSON.parse(stored);
+                }
+            } catch (error) {
+                console.error('ユーザー情報取得エラー:', error);
+            }
+        }
+
+        // ナビゲーションを動的に生成
+        function generateNavigation() {
+            const navHeader = document.getElementById('navHeader');
+            
+            if (currentUser) {
+                // ログイン中のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                    <a href="my-page.html" class="nav-link">👤 マイページ</a>
+                    <a href="simple-dashboard.html" class="nav-link current">📋 スキル表示版</a>
+                    <span class="nav-link" style="background: rgba(255,255,255,0.1); cursor: default;">👋 ${currentUser.name || 'ユーザー'}</span>
+                    <a href="#" class="nav-link" onclick="logout()" style="background: rgba(255,69,58,0.8);">🚪 ログアウト</a>
+                `;
+            } else {
+                // 未ログイン時のナビゲーション
+                navHeader.innerHTML = `
+                    <a href="index.html" class="nav-link">🏠 ホーム</a>
+                    <a href="timeline.html" class="nav-link">📈 タイムライン</a>
+                    <a href="community.html" class="nav-link">👥 コミュニティ</a>
+                    <a href="login.html" class="nav-link">🔐 ログイン</a>
+                    <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
+                    <a href="simple-dashboard.html" class="nav-link current">📋 スキル表示版</a>
+                `;
+            }
+        }
+
+        // ログアウト機能
+        function logout() {
+            if (confirm('ログアウトしますか？')) {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            }
+        }
+
         // 性別推定関数
         function estimateGender(name) {
             const maleNames = ['太郎', '一郎', '二郎', '光', '健', '誠', '洋', '博', '雄', '男', '夫', '彦'];
