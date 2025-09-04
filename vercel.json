@@ -12,11 +12,16 @@
       "dest": "server.js"
     },
     {
-      "src": "/(.*)",
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*\\.(html|css|js|png|jpg|jpeg|svg|ico))",
       "dest": "/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
-  ],
-  "env": {
-    "MONGODB_URI": "mongodb+srv://sonoda:ayaka10@cluster0.fp7knrt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-  }
+  ]
 }
