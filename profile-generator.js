@@ -827,7 +827,7 @@ class ProfileGenerator {
 
     // 全プロフィールを取得
     getAllProfiles() {
-        return this.profiles;
+        return this.getAllProfilesForDisplay();
     }
 
     // プロフィールを削除

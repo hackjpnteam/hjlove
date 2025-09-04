@@ -401,7 +401,7 @@
         </div>
 
         <div class="events-controls">
-            <button class="create-event-btn" onclick="openCreateEventModal()">➕ イベント作成</button>
+            <button class="create-event-btn" onclick="openCreateEventModal()" id="createEventBtn">➕ イベント作成</button>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
                 <button class="filter-btn active" onclick="filterEvents('all')">すべて</button>
@@ -564,6 +564,12 @@
                     <a href="login.html" class="nav-link">🔐 ログイン</a>
                     <a href="profile-create.html" class="nav-link">➕ プロフィール作成</a>
                 `;
+            }
+            
+            // 未ログインユーザー向けの制御
+            const createEventBtn = document.getElementById('createEventBtn');
+            if (!currentUser && createEventBtn) {
+                createEventBtn.style.display = 'none';
             }
         }
 

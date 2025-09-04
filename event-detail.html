@@ -521,6 +521,25 @@
             const stored = localStorage.getItem('communityEvents');
             if (stored) {
                 events = JSON.parse(stored);
+            } else {
+                // デフォルトのサンプルイベント
+                events = [
+                    {
+                        id: 'event005',
+                        title: '8時だよ全員集合朝会',
+                        description: '毎日の朝のミーティングです。今日の予定や目標を共有しましょう。',
+                        date: '2025-09-04T08:00:00',
+                        location: 'オンライン（Zoom）',
+                        price: '無料',
+                        capacity: 50,
+                        participants: [],
+                        checkedInUsers: [],
+                        createdBy: 'admin@example.com',
+                        createdAt: '2025-09-04T07:00:00',
+                        category: 'meeting'
+                    }
+                ];
+                localStorage.setItem('communityEvents', JSON.stringify(events));
             }
 
             currentEvent = events.find(e => e.id === eventId);

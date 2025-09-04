@@ -392,6 +392,15 @@
                     </p>
                 </div>
                 
+                <div class="invited-users-section" style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
+                    <h4 style="color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                        👥 招待したユーザー
+                    </h4>
+                    <div id="invitedUsersDisplay">
+                        <!-- 招待したユーザーが表示されます -->
+                    </div>
+                </div>
+                
                 <div class="social-links-section" style="margin-top: 20px; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 15px;">
                     <h4 style="color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
                         🔗 SNS情報
@@ -544,6 +553,9 @@
             
             // SNS情報を表示
             loadSocialInfo();
+            
+            // 招待したユーザーを表示
+            loadInvitedUsers();
         }
 
         // 自分のプロフィールを読み込み
@@ -727,6 +739,55 @@
         function truncateText(text, maxLength) {
             if (!text || text.length <= maxLength) return text;
             return text.substring(0, maxLength) + '...';
+        }
+
+        // 招待したユーザーを読み込み表示
+        function loadInvitedUsers() {
+            if (!currentUser) return;
+            
+            try {
+                const users = JSON.parse(localStorage.getItem('users') || '{}');
+                const invitedUsers = Object.entries(users).filter(([email, userData]) => {
+                    return userData.invitedBy === currentUser.email;
+                });
+                
+                displayInvitedUsers(invitedUsers);
+            } catch (error) {
+                console.error('招待ユーザー読み込みエラー:', error);
+                displayInvitedUsers([]);
+            }
+        }
+
+        // 招待したユーザーを表示
+        function displayInvitedUsers(invitedUsers) {
+            const invitedUsersDisplay = document.getElementById('invitedUsersDisplay');
+            
+            if (invitedUsers.length === 0) {
+                invitedUsersDisplay.innerHTML = '<p style="color: #666; font-style: italic;">まだ誰も招待していません</p>';
+                return;
+            }
+            
+            const userCards = invitedUsers.map(([email, userData]) => {
+                const joinDate = new Date(userData.registeredAt || Date.now()).toLocaleDateString('ja-JP');
+                const userName = userData.name || email.split('@')[0];
+                const userPicture = userData.picture;
+                
+                return `
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: white; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        ${userPicture ? 
+                            `<img src="${userPicture}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">` :
+                            `<div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.2rem;">${userName.charAt(0).toUpperCase()}</div>`
+                        }
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #333; margin-bottom: 4px;">${userName}</div>
+                            <div style="font-size: 0.85rem; color: #666;">${email}</div>
+                            <div style="font-size: 0.8rem; color: #888; margin-top: 2px;">📅 ${joinDate} に参加</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            invitedUsersDisplay.innerHTML = userCards;
         }
 
         // 通知を表示

@@ -502,7 +502,7 @@
         // イベント作成者情報を取得
         function getEventCreatorInfo(email) {
             try {
-                const users = JSON.parse(localStorage.getItem('registeredUsers') || '{}');
+                const users = JSON.parse(localStorage.getItem('users') || '{}');
                 const defaultUsers = {
                     'admin@example.com': { name: '管理者' },
                     'user@example.com': { name: 'ユーザー' },
@@ -537,7 +537,29 @@
                 }));
 
             // イベント作成のタイムライン項目
-            const events = JSON.parse(localStorage.getItem('communityEvents') || '[]');
+            let events = JSON.parse(localStorage.getItem('communityEvents') || '[]');
+            
+            // デフォルトのサンプルイベントがない場合に追加
+            if (events.length === 0) {
+                events = [
+                    {
+                        id: 'event005',
+                        title: '8時だよ全員集合朝会',
+                        description: '毎日の朝のミーティングです。今日の予定や目標を共有しましょう。',
+                        date: '2025-09-04T08:00:00',
+                        location: 'オンライン（Zoom）',
+                        price: '無料',
+                        capacity: 50,
+                        participants: [],
+                        checkedInUsers: [],
+                        createdBy: 'admin@example.com',
+                        createdAt: '2025-09-04T07:00:00',
+                        category: 'meeting'
+                    }
+                ];
+                // タイムライン用にもイベントデータを保存
+                localStorage.setItem('communityEvents', JSON.stringify(events));
+            }
             const eventTimeline = events
                 .filter(event => event.createdAt)
                 .map(event => {

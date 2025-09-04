@@ -415,12 +415,12 @@
         }
 
         function loadProfile() {
-            const profileId = getProfileFromURL();
-            
-            if (!profileId) {
-                showError('プロフィールIDが指定されていません。');
+            // URLパラメータをバリデーション
+            if (!validateProfileId()) {
                 return;
             }
+            
+            const profileId = getProfileFromURL();
 
             // 既存のハードコードされたプロフィール
             const existingProfiles = [
@@ -622,6 +622,19 @@
                 </div>
             `;
             document.getElementById('profileContent').innerHTML = errorHTML;
+        }
+        
+        // URLパラメータのバリデーション
+        function validateProfileId() {
+            const profileId = getProfileFromURL();
+            
+            if (!profileId || profileId.trim() === '') {
+                // プロフィールIDが空の場合、ホームページにリダイレクト
+                window.location.href = 'index.html';
+                return false;
+            }
+            
+            return true;
         }
 
         // ページ読み込み時にプロフィールを表示
