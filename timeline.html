@@ -6,6 +6,7 @@
     <title>活動タイムライン - プロフィール管理システム</title>
     <script src="placeholder-generator.js"></script>
     <script src="profile-generator.js"></script>
+    <script src="api-client.js"></script>
     <style>
         * {
             margin: 0;
@@ -516,7 +517,7 @@
         }
 
         // プロフィールデータを取得してタイムライン用に変換
-        function loadTimelineData() {
+        async function loadTimelineData() {
             if (!window.profileGenerator) return;
 
             const allProfiles = window.profileGenerator.getAllProfilesForDisplay();
@@ -537,7 +538,19 @@
                 }));
 
             // イベント作成のタイムライン項目
-            let events = JSON.parse(localStorage.getItem('communityEvents') || '[]');
+            let events = [];
+            try {
+                // APIから取得を試行
+                if (window.apiClient) {
+                    events = await window.apiClient.getEvents();
+                } else {
+                    // フォールバック: localStorage
+                    events = JSON.parse(localStorage.getItem('communityEvents') || '[]');
+                }
+            } catch (error) {
+                console.warn('イベント取得エラー:', error);
+                events = JSON.parse(localStorage.getItem('communityEvents') || '[]');
+            }
             
             // デフォルトのサンプルイベントがない場合に追加
             if (events.length === 0) {
@@ -835,16 +848,16 @@
         }
 
         // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             generateNavigation();
             setupFilters();
             
             // profile-generator.jsの読み込みを待つ
             if (window.profileGenerator) {
-                loadTimelineData();
+                await loadTimelineData();
             } else {
-                setTimeout(() => {
-                    loadTimelineData();
+                setTimeout(async () => {
+                    await loadTimelineData();
                 }, 100);
             }
 

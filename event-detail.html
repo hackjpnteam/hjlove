@@ -6,6 +6,7 @@
     <title>イベント詳細</title>
     <script src="placeholder-generator.js"></script>
     <script src="profile-generator.js"></script>
+    <script src="api-client.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -451,10 +452,10 @@
         let events = [];
 
         // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             loadCurrentUser();
             generateNavigation();
-            loadEventDetail();
+            await loadEventDetail();
         });
 
         // 現在のユーザー情報を取得
@@ -507,7 +508,7 @@
         }
 
         // イベント詳細を読み込み
-        function loadEventDetail() {
+        async function loadEventDetail() {
             const urlParams = new URLSearchParams(window.location.search);
             const eventId = urlParams.get('id');
             
@@ -518,11 +519,22 @@
             }
 
             // イベントデータを読み込み
-            const stored = localStorage.getItem('communityEvents');
-            if (stored) {
-                events = JSON.parse(stored);
-            } else {
-                // デフォルトのサンプルイベント
+            try {
+                // APIクライアントを使用してMongoDBから取得
+                if (window.apiClient) {
+                    events = await window.apiClient.getEvents();
+                } else {
+                    // フォールバック: localStorage
+                    const stored = localStorage.getItem('communityEvents');
+                    if (stored) {
+                        events = JSON.parse(stored);
+                    } else {
+                        events = window.apiClient ? await window.apiClient.getDefaultEvents() : [];
+                    }
+                }
+            } catch (error) {
+                console.warn('イベント取得エラー:', error);
+                // フォールバック: デフォルトデータ
                 events = [
                     {
                         id: 'event005',

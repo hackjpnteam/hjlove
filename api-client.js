@@ -1,5 +1,7 @@
 // API Client for MongoDB backend
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001/api' 
+    : '/api';
 
 class APIClient {
     // イベント関連
@@ -21,11 +23,11 @@ class APIClient {
     
     async saveEvents(events) {
         try {
-            // APIに保存
+            // 全イベントをMongoDBに更新
             await fetch(`${API_BASE}/events`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ events })
+                body: JSON.stringify(events)
             });
         } catch (error) {
             console.warn('API保存エラー、ローカルストレージに保存:', error);

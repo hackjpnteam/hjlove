@@ -6,6 +6,7 @@
     <title>イベント</title>
     <script src="placeholder-generator.js"></script>
     <script src="profile-generator.js"></script>
+    <script src="api-client.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -519,10 +520,10 @@
         let currentFilter = 'all';
 
         // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             loadCurrentUser();
             generateNavigation();
-            loadEvents();
+            await loadEvents();
             displayEvents();
         });
 
@@ -582,7 +583,18 @@
         }
 
         // イベントデータを読み込み
-        function loadEvents() {
+        async function loadEvents() {
+            try {
+                // APIクライアントを使用してMongoDBから取得
+                if (window.apiClient) {
+                    events = await window.apiClient.getEvents();
+                    return;
+                }
+            } catch (error) {
+                console.warn('API接続エラー、ローカルストレージを使用:', error);
+            }
+            
+            // フォールバック: localStorage
             const stored = localStorage.getItem('communityEvents');
             if (stored) {
                 events = JSON.parse(stored);
@@ -623,7 +635,18 @@
         }
 
         // イベントデータを保存
-        function saveEvents() {
+        async function saveEvents() {
+            try {
+                // APIクライアントを使用してMongoDBに保存
+                if (window.apiClient) {
+                    await window.apiClient.saveEvents(events);
+                    return;
+                }
+            } catch (error) {
+                console.warn('API保存エラー、ローカルストレージに保存:', error);
+            }
+            
+            // フォールバック: localStorage
             localStorage.setItem('communityEvents', JSON.stringify(events));
         }
 
